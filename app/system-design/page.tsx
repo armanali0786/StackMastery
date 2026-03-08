@@ -8,7 +8,7 @@ import Legend from "../components/Legend";
 import FavPanel from "../components/FavPanel";
 import MonthSection from "../components/MonthSection";
 import GlobalNotebook from "../components/GlobalNotebook";
-import { ProblemData, State, Fav, Notes } from "./components/types";
+import { ProblemData, State, Fav, Notes } from "./types";
 import { systemDesignTheme } from "../components/constants/themes";
 import TrackerHeader from "../components/TrackerHeader";
 
