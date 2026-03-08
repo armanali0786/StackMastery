@@ -1,4 +1,4 @@
-// app/interview-prep/dbms-tracker/page.tsx
+// app/dbms/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -7,8 +7,8 @@ import StatsBar from "../components/StatsBar";
 import TipBanner from "../components/TipBanner";
 import Legend from "../components/Legend";
 import MonthSection from "../components/MonthSection";
-import GlobalNotebook from "./components/GlobalNotebook";
-import FavPanel from "./components/FavPanel";
+import GlobalNotebook from "../components/GlobalNotebook";
+import FavPanel from "../components/FavPanel";
 import { ProblemData, State, Fav, Notes } from "./components/types";
 import { dbmsTheme } from "../components/constants/themes";
 import TrackerHeader from "../components/TrackerHeader";
@@ -155,6 +155,7 @@ export default function DBMSTrackerPage() {
 
         {currentTab === "fav" && (
           <FavPanel
+            theme={dbmsTheme}
             data={DATA}
             favs={favs}
             state={state}
@@ -187,6 +188,7 @@ export default function DBMSTrackerPage() {
           ))}
 
         <GlobalNotebook
+          theme={dbmsTheme}
           value={globalNote}
           onChange={(e) => setGlobalNote(e.target.value)}
         />

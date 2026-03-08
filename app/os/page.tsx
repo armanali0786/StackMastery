@@ -1,4 +1,4 @@
-// app/interview-prep/os-tracker/page.tsx
+// app/os/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -6,9 +6,9 @@ import OSHeader from "./components/OSHeader";
 import StatsBar from "../components/StatsBar";
 import TipBanner from "../components/TipBanner";
 import Legend from "../components/Legend";
-import FavPanel from "./components/FavPanel";
+import FavPanel from "../components/FavPanel";
 import MonthSection from "../components/MonthSection";
-import GlobalNotebook from "./components/GlobalNotebook";
+import GlobalNotebook from "../components/GlobalNotebook";
 import { ProblemData, State, Fav, Notes } from "./components/types";
 import { osTheme } from "../components/constants/themes";
 import TrackerHeader from "../components/TrackerHeader";
@@ -158,6 +158,7 @@ export default function OSTrackerPage() {
 
         {currentTab === "fav" && (
           <FavPanel
+            theme={osTheme}
             data={DATA}
             favs={favs}
             state={state}
@@ -190,6 +191,7 @@ export default function OSTrackerPage() {
           ))}
 
         <GlobalNotebook
+          theme={osTheme}
           value={globalNote}
           onChange={(e) => setGlobalNote(e.target.value)}
         />

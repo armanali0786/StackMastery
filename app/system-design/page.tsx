@@ -1,4 +1,4 @@
-// app/interview-prep/system-design-tracker/page.tsx
+// app/system-design/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -6,9 +6,9 @@ import SDHeader from "./components/SDHeader";
 import StatsBar from "../components/StatsBar";
 import TipBanner from "../components/TipBanner";
 import Legend from "../components/Legend";
-import FavPanel from "./components/FavPanel";
+import FavPanel from "../components/FavPanel";
 import MonthSection from "../components/MonthSection";
-import GlobalNotebook from "./components/GlobalNotebook";
+import GlobalNotebook from "../components/GlobalNotebook";
 import { ProblemData, State, Fav, Notes } from "./components/types";
 import { systemDesignTheme } from "../components/constants/themes";
 import TrackerHeader from "../components/TrackerHeader";
@@ -156,6 +156,7 @@ export default function SystemDesignTrackerPage() {
 
         {currentTab === "fav" && (
           <FavPanel
+            theme={systemDesignTheme}
             data={DATA}
             favs={favs}
             state={state}
@@ -188,6 +189,7 @@ export default function SystemDesignTrackerPage() {
           ))}
 
         <GlobalNotebook
+          theme={systemDesignTheme}
           value={globalNote}
           onChange={(e) => setGlobalNote(e.target.value)}
         />

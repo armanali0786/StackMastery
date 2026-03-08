@@ -6,9 +6,9 @@ import TrackerHeader from "../components/TrackerHeader";
 import TipBanner from "../components/TipBanner";
 import StatsBar from "../components/StatsBar";
 import Legend from "../components/Legend";
-import FavPanel from "./components/FavPanel";
+import FavPanel from "../components/FavPanel";
 import MonthSection from "../components/MonthSection";
-import GlobalNotebook from "./components/GlobalNotebook";
+import GlobalNotebook from "../components/GlobalNotebook";
 import { ProblemData, State, Fav, Notes } from "./components/types";
 
 
@@ -288,6 +288,7 @@ export default function DSATrackerPage() {
 
         {currentTab === "fav" && (
           <FavPanel
+            theme={dsaTheme}
             data={DATA}
             favs={favs}
             state={state}
@@ -320,6 +321,7 @@ export default function DSATrackerPage() {
           ))}
 
         <GlobalNotebook
+          theme={dsaTheme}
           value={globalNote}
           onChange={(e) => setGlobalNote(e.target.value)}
         />

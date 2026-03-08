@@ -1,4 +1,4 @@
-// app/interview-prep/oops-tracker/page.tsx
+// app/oops/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -7,9 +7,9 @@ import TrackerHeader from "../components/TrackerHeader";
 import TipBanner from "../components/TipBanner";
 import StatsBar from "../components/StatsBar";
 import Legend from "../components/Legend";
-import FavPanel from "./components/FavPanel";
+import FavPanel from "../components/FavPanel";
 import MonthSection from "../components/MonthSection";
-import GlobalNotebook from "./components/GlobalNotebook";
+import GlobalNotebook from "../components/GlobalNotebook";
 import { ProblemData, State, Fav, Notes } from "./components/types";
 
 
@@ -187,6 +187,7 @@ export default function OOPsTrackerPage() {
 
         {currentTab === "fav" && (
           <FavPanel
+            theme={oopsTheme}
             data={DATA}
             favs={favs}
             state={state}
@@ -219,6 +220,7 @@ export default function OOPsTrackerPage() {
           ))}
 
         <GlobalNotebook
+          theme={oopsTheme}
           value={globalNote}
           onChange={(e) => setGlobalNote(e.target.value)}
         />
