@@ -31,7 +31,7 @@ export default function NavBar() {
             AR
           </div>
           <span>
-            Interview<span className="text-emerald-500">Prep</span>
+            Prep<span className="text-emerald-500">Stack</span>
           </span>
         </Link>
 
