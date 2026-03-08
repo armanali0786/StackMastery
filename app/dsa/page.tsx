@@ -7,7 +7,7 @@ import TipBanner from "../components/TipBanner";
 import StatsBar from "../components/StatsBar";
 import Legend from "../components/Legend";
 import FavPanel from "./components/FavPanel";
-import MonthSection from "./components/MonthSection";
+import MonthSection from "../components/MonthSection";
 import GlobalNotebook from "./components/GlobalNotebook";
 import { ProblemData, State, Fav, Notes } from "./components/types";
 
@@ -270,18 +270,6 @@ export default function DSATrackerPage() {
       <div className="fixed inset-0 pointer-events-none z-0 bg-grid-accent opacity-5" />
 
       <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-10 max-w-7xl">
-        {/* <DSAHeader
-          currentTab={currentTab}
-          setCurrentTab={setCurrentTab}
-          favCount={stats.fav}
-        />
-
-        <StatsBar stats={stats} />
-
-        <TipBanner />
-
-        <Legend /> */}
-
         <TrackerHeader
           title="DSA Mastery"
           subtitle="6 Month Roadmap"
@@ -316,7 +304,7 @@ export default function DSATrackerPage() {
         {currentTab === "all" &&
           DATA.map((month, mi) => (
             <MonthSection
-              key={mi}
+              theme={dsaTheme}
               month={month}
               monthIndex={mi}
               state={state}

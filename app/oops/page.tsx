@@ -8,7 +8,7 @@ import TipBanner from "../components/TipBanner";
 import StatsBar from "../components/StatsBar";
 import Legend from "../components/Legend";
 import FavPanel from "./components/FavPanel";
-import MonthSection from "./components/MonthSection";
+import MonthSection from "../components/MonthSection";
 import GlobalNotebook from "./components/GlobalNotebook";
 import { ProblemData, State, Fav, Notes } from "./components/types";
 
@@ -203,7 +203,7 @@ export default function OOPsTrackerPage() {
         {currentTab === "all" &&
           DATA.map((month, mi) => (
             <MonthSection
-              key={mi}
+              theme={oopsTheme}
               month={month}
               monthIndex={mi}
               state={state}

@@ -7,7 +7,7 @@ import StatsBar from "../components/StatsBar";
 import TipBanner from "../components/TipBanner";
 import Legend from "../components/Legend";
 import FavPanel from "./components/FavPanel";
-import MonthSection from "./components/MonthSection";
+import MonthSection from "../components/MonthSection";
 import GlobalNotebook from "./components/GlobalNotebook";
 import { ProblemData, State, Fav, Notes } from "./components/types";
 import { systemDesignTheme } from "../components/constants/themes";
@@ -172,7 +172,7 @@ export default function SystemDesignTrackerPage() {
         {currentTab === "all" &&
           DATA.map((month, mi) => (
             <MonthSection
-              key={mi}
+              theme={systemDesignTheme}
               month={month}
               monthIndex={mi}
               state={state}
