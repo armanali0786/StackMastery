@@ -23,7 +23,7 @@ export default function DailyGoals() {
 
             <div className="flex flex-wrap gap-4">
               <a
-                href="/interview-prep/dsa-tracker"
+                href="/dsa"
                 className="bg-emerald-500 text-black font-mono font-bold px-7 py-3.5 rounded-xl hover:bg-emerald-400 transition-all hover:shadow-emerald-500/30 hover:-translate-y-0.5 text-sm"
               >
                 Start Today →
