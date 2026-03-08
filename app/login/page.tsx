@@ -16,7 +16,7 @@ export default function LoginPage() {
   useEffect(() => {
     const session = localStorage.getItem("iph_session");
     if (session) {
-      window.location.href = "/"; 
+      window.location.href = "/";
     }
   }, []);
 
@@ -49,7 +49,12 @@ export default function LoginPage() {
 
               <AuthTabs activeTab={activeTab} onTabChange={switchTab} />
 
-              {activeTab === "login" && <LoginForm onSwitchToSignup={() => switchTab("signup")} />}
+              {activeTab === "login" && (
+                <LoginForm
+                  onSwitchToSignup={() => switchTab("signup")}
+                  onForgotPassword={() => switchTab("forgot")}
+                />
+              )}              
               {activeTab === "signup" && <SignupForm onSwitchToLogin={() => switchTab("login")} />}
               {activeTab === "forgot" && <ForgotPasswordForm onBackToLogin={() => switchTab("login")} />}
             </div>
