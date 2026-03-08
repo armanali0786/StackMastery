@@ -2,14 +2,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import DBMSHeader from "./components/DBMSHeader";
 import StatsBar from "../components/StatsBar";
 import TipBanner from "../components/TipBanner";
 import Legend from "../components/Legend";
 import MonthSection from "../components/MonthSection";
 import GlobalNotebook from "../components/GlobalNotebook";
 import FavPanel from "../components/FavPanel";
-import { ProblemData, State, Fav, Notes } from "./components/types";
+import { ProblemData, State, Fav, Notes } from "./types";
 import { dbmsTheme } from "../components/constants/themes";
 import TrackerHeader from "../components/TrackerHeader";
 

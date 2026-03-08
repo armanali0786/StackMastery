@@ -2,7 +2,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import SDHeader from "./components/SDHeader";
 import StatsBar from "../components/StatsBar";
 import TipBanner from "../components/TipBanner";
 import Legend from "../components/Legend";
