@@ -148,7 +148,7 @@ export default function OSTrackerPage() {
           favCount={stats.fav}
         />
 
-        <TipBanner theme={osTheme} />
+        {/* <TipBanner theme={osTheme} /> */}
 
         <StatsBar stats={stats} theme={osTheme} />
 

@@ -280,7 +280,7 @@ export default function DSATrackerPage() {
           favCount={stats.fav}
         />
 
-        <TipBanner theme={dsaTheme} />
+        {/* <TipBanner theme={dsaTheme} /> */}
 
         <StatsBar stats={stats} theme={dsaTheme} />
 

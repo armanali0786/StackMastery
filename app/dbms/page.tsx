@@ -146,7 +146,7 @@ export default function DBMSTrackerPage() {
           favCount={stats.fav}
         />
 
-        <TipBanner theme={dbmsTheme} />
+        {/* <TipBanner theme={dbmsTheme} /> */}
 
         <StatsBar stats={stats} theme={dbmsTheme} />
 

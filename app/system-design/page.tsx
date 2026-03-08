@@ -147,7 +147,7 @@ export default function SystemDesignTrackerPage() {
           favCount={stats.fav}
         />
 
-        <TipBanner theme={systemDesignTheme} />
+        {/* <TipBanner theme={systemDesignTheme} /> */}
 
         <StatsBar stats={stats} theme={systemDesignTheme} />
 

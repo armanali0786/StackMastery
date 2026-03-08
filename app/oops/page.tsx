@@ -179,7 +179,7 @@ export default function OOPsTrackerPage() {
           favCount={stats.fav}
         />
 
-        <TipBanner theme={oopsTheme} />
+        {/* <TipBanner theme={oopsTheme} /> */}
 
         <StatsBar stats={stats} theme={oopsTheme} />
 
