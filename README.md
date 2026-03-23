@@ -6,7 +6,7 @@ StackPrep is a **TypeScript-first interview preparation platform** that helps yo
 
 ---
 
-## 🌐 Overview
+## Overview
 
 Preparing for technical interviews often becomes chaotic across multiple platforms and resources. StackPrep solves this by providing a **centralized system** to:
 
@@ -111,16 +111,6 @@ Todo → Done → Review
 ---
 
 ## 📂 Project Structure
-
-
-src/
-├── components/ # Reusable UI components
-├── pages/ # Pages (Home, Trackers, Login)
-├── data/ # Topic datasets
-├── hooks/ # Custom hooks
-├── utils/ # Helper functions
-├── store/ # Local state logic
-└── styles/ # Tailwind configuration
 
 
 
