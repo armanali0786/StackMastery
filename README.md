@@ -128,3 +128,18 @@ npm install
 npm run dev
 4. Open in Browser
 http://localhost:3000
+
+```
+### 1. Screenshots
+
+
+<img width="1847" height="984" alt="Screenshot from 2026-03-23 22-44-22" src="https://github.com/user-attachments/assets/222122f0-f1b8-436e-93c6-5ce307310a3d" />
+
+<img width="1847" height="984" alt="Screenshot from 2026-03-23 22-44-32" src="https://github.com/user-attachments/assets/772efd0b-f483-4da8-8b13-4358901bd83a" />
+
+<img width="1847" height="984" alt="Screenshot from 2026-03-23 22-44-43" src="https://github.com/user-attachments/assets/ce97efad-a536-4f33-8d73-70434510b8f1" />
+
+<img width="1847" height="984" alt="Screenshot from 2026-03-23 22-45-02" src="https://github.com/user-attachments/assets/817c9f7b-ce09-4aaf-84d6-52f42a8cacc1" />
+
+<img width="1847" height="984" alt="Screenshot from 2026-03-23 22-45-31" src="https://github.com/user-attachments/assets/5711e03c-9a2e-4094-a02a-ab6ac23ad745" />
+
