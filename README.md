@@ -1,36 +1,140 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🚀 StackPrep
 
-## Getting Started
+> **Master Your Technical Interviews — All in One Place**
 
-First, run the development server:
+StackPrep is a **TypeScript-first interview preparation platform** that helps you systematically track, practice, and master core computer science subjects — including **DSA, OOPs, DBMS, Operating Systems, and System Design** — through a unified, analytics-driven dashboard.
 
+---
+
+## 🌐 Overview
+
+Preparing for technical interviews often becomes chaotic across multiple platforms and resources. StackPrep solves this by providing a **centralized system** to:
+
+- Track progress across all subjects
+- Organize topics in structured roadmaps
+- Maintain notes and revision queues
+- Measure performance with real-time analytics
+
+---
+
+## ✨ Key Features
+
+### 📊 Central Analytics Dashboard
+- Real-time aggregated progress across all subjects
+- Overall completion percentage
+- Per-subject breakdown (DSA, OOPs, DBMS, OS, System Design)
+- Tracks:
+  - ✅ Completed
+  - 🔁 Review
+  - ⭐ Favorites
+  - ⏳ Remaining
+
+---
+
+### 📚 Subject Trackers (250+ Topics)
+- Covers 5 major domains:
+  - Data Structures & Algorithms (DSA)
+  - Object-Oriented Programming (OOPs)
+  - Database Management Systems (DBMS)
+  - Operating Systems (OS)
+  - System Design
+- Each subject has a dedicated tracker
+- Clean card-based UI for each topic
+
+---
+
+### 🔄 3-State Progress System
+
+Each topic follows a simple and effective workflow:
+
+Todo → Done → Review
+
+
+- **Todo** → Not started  
+- **Done** → Completed  
+- **Review** → Marked for revision (spaced repetition)
+
+---
+
+### 📝 Per-Topic Notes System
+- Add notes for every topic
+- Auto-save functionality
+- Capture:
+  - Approach
+  - Mistakes
+  - Key insights
+
+---
+
+### ⭐ Favorites System
+- Mark important topics across subjects
+- Quickly access high-priority questions
+
+---
+
+### 🔗 External Resources Integration
+- Direct links to:
+  - GeeksforGeeks
+  - LeetCode
+- Seamless practice workflow
+
+---
+
+### ⚡ Fully Client-Side Architecture
+- No backend required
+- Uses browser **localStorage**
+- Persistent and fast
+- Demonstrates efficient client-side state management
+
+---
+
+## 🛠️ Tech Stack
+
+| Category        | Technology |
+|----------------|------------|
+| Frontend       | React.js + TypeScript |
+| Styling        | Tailwind CSS |
+| State Mgmt     | LocalStorage (Custom Architecture) |
+| Backend        | None |
+
+---
+
+## 🧠 Architecture Highlights
+
+- Type-safe architecture using TypeScript
+- Modular subject-based design
+- Isolated state per tracker
+- Real-time computed analytics (no API calls)
+- Zero backend dependency (fully portable)
+- Scalable structure for future backend integration
+
+---
+
+## 📂 Project Structure
+
+
+src/
+├── components/ # Reusable UI components
+├── pages/ # Pages (Home, Trackers, Login)
+├── data/ # Topic datasets
+├── hooks/ # Custom hooks
+├── utils/ # Helper functions
+├── store/ # Local state logic
+└── styles/ # Tailwind configuration
+
+
+
+---
+
+## 🚀 Getting Started
+
+### 1. Clone the Repository
 ```bash
+git clone https://github.com/your-username/stackprep.git
+cd stackprep
+2. Install Dependencies
+npm install
+3. Run the Application
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+4. Open in Browser
+http://localhost:3000
