@@ -1,0 +1,17 @@
+[build]
+  # The directory where Netlify runs the build command
+  base = "/"
+  
+  # The command to build the frontend
+  command = "npm run build"
+  
+  # The directory where the built frontend is located
+  publish = ".next"
+
+[context.production.environment]
+  # These are added in the Netlify Dashboard usually, but listed here for clarity.
+  # NEXT_PUBLIC_API_URL should point to your deployed Express backend (e.g., Render/Railway)
+  # NEXT_PUBLIC_API_URL = "https://your-backend-url.onrender.com"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
