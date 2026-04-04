@@ -2,6 +2,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { fetchWithAuth } from "../../lib/api";
 
 type TrackerStats = {
   done: number;
@@ -39,35 +40,47 @@ export default function GlobalProgress() {
 
     const subjProg: { name: string; pct: number; color: string }[] = [];
 
-    trackers.forEach((t) => {
-      let S: Record<string, string> = {};
-      let FAV: Record<string, boolean> = {};
-
+    const loadData = async () => {
+      let backendTrackers: any[] = [];
       try {
-        S = JSON.parse(localStorage.getItem(`${t.key}_s`) || "{}");
-      } catch {}
-      try {
-        FAV = JSON.parse(localStorage.getItem(`${t.key}_f`) || "{}");
-      } catch {}
+        const res = await fetchWithAuth("/api/tracker/all");
+        if (res.ok) {
+          const data = await res.json();
+          backendTrackers = data.trackers;
+        }
+      } catch (err) {}
 
-      const done = Object.values(S).filter((v) => v === "done").length;
-      const review = Object.values(S).filter((v) => v === "review").length;
-      const fav = Object.values(FAV).filter(Boolean).length;
+      trackers.forEach((t) => {
+        let S: Record<string, string> = {};
+        let FAV: Record<string, boolean> = {};
 
-      const pct = t.total > 0 ? Math.round((done / t.total) * 100) : 0;
+        const dbTracker = backendTrackers.find(b => b.subject === t.key);
+        if (dbTracker) {
+          S = dbTracker.states || {};
+          FAV = dbTracker.favs || {};
+        }
 
-      totalAll += t.total;
-      doneAll += done;
-      reviewAll += review;
-      favAll += fav;
+        const done = Object.values(S).filter((v) => v === "done").length;
+        const review = Object.values(S).filter((v) => v === "review").length;
+        const fav = Object.values(FAV).filter(Boolean).length;
 
-      subjProg.push({ name: t.name, pct, color: t.color });
-    });
+        const pct = t.total > 0 ? Math.round((done / t.total) * 100) : 0;
 
-    const pct = totalAll > 0 ? Math.round((doneAll / totalAll) * 100) : 0;
+        totalAll += t.total;
+        doneAll += done;
+        reviewAll += review;
+        favAll += fav;
 
-    setStats({ totalAll, doneAll, reviewAll, favAll, pct });
-    setSubjectProgress(subjProg);
+        subjProg.push({ name: t.name, pct, color: t.color });
+      });
+
+      const pct = totalAll > 0 ? Math.round((doneAll / totalAll) * 100) : 0;
+
+      setStats({ totalAll, doneAll, reviewAll, favAll, pct });
+      setSubjectProgress(subjProg);
+    };
+
+    loadData();
   }, []);
 
   const remaining = stats.totalAll - stats.doneAll;

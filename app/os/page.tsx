@@ -1,7 +1,8 @@
 // app/os/page.tsx
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useTrackerData } from "../../lib/hooks/useTrackerData";
 import StatsBar from "../components/StatsBar";
 import TipBanner from "../components/TipBanner";
 import Legend from "../components/Legend";
@@ -48,38 +49,15 @@ const DATA: ProblemData[] = [
 const TRACKER_KEY = "os";
 
 export default function OSTrackerPage() {
-  const [state, setState] = useState<State>({});
-  const [favs, setFavs] = useState<Fav>({});
-  const [notes, setNotes] = useState<Notes>({});
-  const [globalNote, setGlobalNote] = useState("");
+  const { state, setState, favs, setFavs, notes, setNotes, globalNote, setGlobalNote } = useTrackerData<State, Fav, Notes>(TRACKER_KEY);
   const [currentTab, setCurrentTab] = useState<"all" | "fav">("all");
   const [openNotes, setOpenNotes] = useState<Record<string, boolean>>({});
-
-  // Load from localStorage
-  useEffect(() => {
-    try {
-      setState(JSON.parse(localStorage.getItem(`${TRACKER_KEY}_s`) || "{}"));
-      setFavs(JSON.parse(localStorage.getItem(`${TRACKER_KEY}_f`) || "{}"));
-      setNotes(JSON.parse(localStorage.getItem(`${TRACKER_KEY}_n`) || "{}"));
-      setGlobalNote(localStorage.getItem(`${TRACKER_KEY}_gn`) || "");
-    } catch (err) {
-      console.error("Failed to load OS tracker state", err);
-    }
-  }, []);
-
-  // Save whenever state changes
-  useEffect(() => {
-    localStorage.setItem(`${TRACKER_KEY}_s`, JSON.stringify(state));
-    localStorage.setItem(`${TRACKER_KEY}_f`, JSON.stringify(favs));
-    localStorage.setItem(`${TRACKER_KEY}_n`, JSON.stringify(notes));
-    localStorage.setItem(`${TRACKER_KEY}_gn`, globalNote);
-  }, [state, favs, notes, globalNote]);
 
   const keyGen = (m: number, t: number, p: number) => `${m}_${t}_${p}`;
 
   const toggleSolve = (m: number, t: number, p: number) => {
     const k = keyGen(m, t, p);
-    setState((prev) => ({
+    setState((prev: State) => ({
       ...prev,
       [k]: prev[k] === "done" ? "todo" : "done",
     }));
@@ -87,7 +65,7 @@ export default function OSTrackerPage() {
 
   const toggleReview = (m: number, t: number, p: number) => {
     const k = keyGen(m, t, p);
-    setState((prev) => ({
+    setState((prev: State) => ({
       ...prev,
       [k]: prev[k] === "review" ? "todo" : "review",
     }));
@@ -95,15 +73,15 @@ export default function OSTrackerPage() {
 
   const toggleFav = (m: number, t: number, p: number) => {
     const k = keyGen(m, t, p);
-    setFavs((prev) => ({ ...prev, [k]: !prev[k] }));
+    setFavs((prev: Fav) => ({ ...prev, [k]: !prev[k] }));
   };
 
   const toggleNoteOpen = (k: string) => {
-    setOpenNotes((prev) => ({ ...prev, [k]: !prev[k] }));
+    setOpenNotes((prev: Record<string, boolean>) => ({ ...prev, [k]: !prev[k] }));
   };
 
   const updateNote = (k: string, value: string) => {
-    setNotes((prev) => ({ ...prev, [k]: value }));
+    setNotes((prev: Notes) => ({ ...prev, [k]: value }));
   };
 
   const calculateStats = () => {

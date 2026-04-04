@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useTrackerData } from "../../lib/hooks/useTrackerData";
 import { dsaTheme } from "../components/constants/themes"
 import TrackerHeader from "../components/TrackerHeader";
 import TipBanner from "../components/TipBanner";
@@ -168,37 +169,9 @@ const DATA: ProblemData[] = [
 ];
 
 export default function DSATrackerPage() {
-  const [state, setState] = useState<State>({});
-  const [favs, setFavs] = useState<Fav>({});
-  const [notes, setNotes] = useState<Notes>({});
-  const [globalNote, setGlobalNote] = useState("");
+  const { state, setState, favs, setFavs, notes, setNotes, globalNote, setGlobalNote } = useTrackerData<State, Fav, Notes>("dsa");
   const [currentTab, setCurrentTab] = useState<"all" | "fav">("all");
   const [openNotes, setOpenNotes] = useState<Record<string, boolean>>({});
-
-  // Load from localStorage
-  useEffect(() => {
-    try {
-      const s = localStorage.getItem("dsa_s");
-      const f = localStorage.getItem("dsa_f");
-      const n = localStorage.getItem("dsa_n");
-      const gn = localStorage.getItem("dsa_gn");
-
-      if (s) setState(JSON.parse(s));
-      if (f) setFavs(JSON.parse(f));
-      if (n) setNotes(JSON.parse(n));
-      if (gn) setGlobalNote(gn);
-    } catch (err) {
-      console.error("Failed to load DSA tracker state", err);
-    }
-  }, []);
-
-  // Save whenever state changes
-  useEffect(() => {
-    localStorage.setItem("dsa_s", JSON.stringify(state));
-    localStorage.setItem("dsa_f", JSON.stringify(favs));
-    localStorage.setItem("dsa_n", JSON.stringify(notes));
-    localStorage.setItem("dsa_gn", globalNote);
-  }, [state, favs, notes, globalNote]);
 
   // Key generator
   const key = (m: number, t: number, p: number) => `${m}_${t}_${p}`;
@@ -206,7 +179,7 @@ export default function DSATrackerPage() {
   // ── Actions ──
   const toggleSolve = (m: number, t: number, p: number) => {
     const k = key(m, t, p);
-    setState((prev) => ({
+    setState((prev: State) => ({
       ...prev,
       [k]: prev[k] === "done" ? "todo" : "done",
     }));
@@ -214,7 +187,7 @@ export default function DSATrackerPage() {
 
   const toggleReview = (m: number, t: number, p: number) => {
     const k = key(m, t, p);
-    setState((prev) => ({
+    setState((prev: State) => ({
       ...prev,
       [k]: prev[k] === "review" ? "todo" : "review",
     }));
@@ -222,15 +195,15 @@ export default function DSATrackerPage() {
 
   const toggleFav = (m: number, t: number, p: number) => {
     const k = key(m, t, p);
-    setFavs((prev) => ({ ...prev, [k]: !prev[k] }));
+    setFavs((prev: Fav) => ({ ...prev, [k]: !prev[k] }));
   };
 
   const toggleNoteOpen = (k: string) => {
-    setOpenNotes((prev) => ({ ...prev, [k]: !prev[k] }));
+    setOpenNotes((prev: Record<string, boolean>) => ({ ...prev, [k]: !prev[k] }));
   };
 
   const updateNote = (k: string, value: string) => {
-    setNotes((prev) => ({ ...prev, [k]: value }));
+    setNotes((prev: Notes) => ({ ...prev, [k]: value }));
   };
 
   // ── Stats calculation ──

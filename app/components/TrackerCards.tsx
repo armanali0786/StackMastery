@@ -2,6 +2,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { fetchWithAuth } from "../../lib/api";
 
 const trackers = [
   {
@@ -60,27 +61,39 @@ export default function TrackerCards() {
   const [stats, setStats] = useState<Record<string, { done: number; review: number; fav: number }>>({});
 
   useEffect(() => {
-    const newStats: Record<string, { done: number; review: number; fav: number }> = {};
-
-    trackers.forEach((t) => {
-      let S: Record<string, string> = {};
-      let FAV: Record<string, boolean> = {};
-
+    const loadData = async () => {
+      let backendTrackers: any[] = [];
       try {
-        S = JSON.parse(localStorage.getItem(`${t.id}_s`) || "{}");
-      } catch {}
-      try {
-        FAV = JSON.parse(localStorage.getItem(`${t.id}_f`) || "{}");
-      } catch {}
+        const res = await fetchWithAuth("/api/tracker/all");
+        if (res.ok) {
+          const data = await res.json();
+          backendTrackers = data.trackers;
+        }
+      } catch (err) {}
 
-      const done = Object.values(S).filter((v) => v === "done").length;
-      const review = Object.values(S).filter((v) => v === "review").length;
-      const fav = Object.values(FAV).filter(Boolean).length;
+      const newStats: Record<string, { done: number; review: number; fav: number }> = {};
 
-      newStats[t.id] = { done, review, fav };
-    });
+      trackers.forEach((t) => {
+        let S: Record<string, string> = {};
+        let FAV: Record<string, boolean> = {};
 
-    setStats(newStats);
+        const dbTracker = backendTrackers.find(b => b.subject === t.id);
+        if (dbTracker) {
+          S = dbTracker.states || {};
+          FAV = dbTracker.favs || {};
+        }
+
+        const done = Object.values(S).filter((v) => v === "done").length;
+        const review = Object.values(S).filter((v) => v === "review").length;
+        const fav = Object.values(FAV).filter(Boolean).length;
+
+        newStats[t.id] = { done, review, fav };
+      });
+
+      setStats(newStats);
+    };
+
+    loadData();
   }, []);
 
   return (

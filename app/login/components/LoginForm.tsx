@@ -3,6 +3,10 @@
 
 import { useState } from "react";
 import SocialButtons from "./SocialButtons";
+import { API_BASE_URL } from "../../../lib/api";
+import { useAuth } from "../../../lib/contexts/AuthContext";
+import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 interface LoginFormProps {
   onSwitchToSignup: () => void;
@@ -14,36 +18,48 @@ export default function LoginForm({ onSwitchToSignup, onForgotPassword }: LoginF
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
-  const [message, setMessage] = useState<{ type: "error" | "success"; text: string } | null>(null);
   const [loading, setLoading] = useState(false);
+  const { login } = useAuth();
+  const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setMessage(null);
     setLoading(true);
 
-    setTimeout(() => {
-      if (!email || !password) {
-        setMessage({ type: "error", text: "Please fill in all fields." });
-      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        setMessage({ type: "error", text: "Enter a valid email address." });
-      } else if (password.length < 6) {
-        setMessage({ type: "error", text: "Password must be at least 6 characters." });
-      } else {
-        // Demo login check
-        const users = JSON.parse(localStorage.getItem("iph_users") || "{}");
-        if (users[email] && users[email].pw === btoa(password)) {
-          localStorage.setItem("iph_session", JSON.stringify({ email, name: users[email].name }));
-          setMessage({ type: "success", text: "✓ Welcome back! Redirecting…" });
-          setTimeout(() => {
-            window.location.href = "/";
-          }, 1200);
-        } else {
-          setMessage({ type: "error", text: "Invalid email or password." });
-        }
-      }
+    if (!email || !password) {
+      toast.error("Please fill in all fields.");
       setLoading(false);
-    }, 800);
+      return;
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      toast.error("Enter a valid email address.");
+      setLoading(false);
+      return;
+    } else if (password.length < 6) {
+      toast.error("Password must be at least 6 characters.");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+
+      if (res.ok) {
+        toast.success("Welcome back! Redirecting...");
+        login(data.user, data.token);
+        router.push("/");
+      } else {
+        toast.error(data.error || "Invalid email or password.");
+      }
+    } catch (err) {
+      toast.error("Something went wrong!");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -54,16 +70,6 @@ export default function LoginForm({ onSwitchToSignup, onForgotPassword }: LoginF
           Pick up right where you left off. Your progress is waiting.
         </p>
       </div>
-
-      {message && (
-        <div
-          className={`p-4 rounded-xl text-sm font-mono ${
-            message.type === "error" ? "bg-red-950/30 border border-red-800/40 text-red-300" : "bg-emerald-950/30 border border-emerald-800/40 text-emerald-300"
-          }`}
-        >
-          {message.text}
-        </div>
-      )}
 
       <SocialButtons />
 
@@ -142,11 +148,10 @@ export default function LoginForm({ onSwitchToSignup, onForgotPassword }: LoginF
       <button
         type="submit"
         disabled={loading}
-        className={`w-full py-4 font-mono font-bold uppercase tracking-wider rounded-xl transition-all ${
-          loading
+        className={`w-full py-4 font-mono font-bold uppercase tracking-wider rounded-xl transition-all ${loading
             ? "bg-emerald-600/50 cursor-not-allowed"
             : "bg-emerald-500 hover:bg-emerald-400 hover:shadow-emerald-500/30 hover:-translate-y-0.5 text-black"
-        }`}
+          }`}
       >
         {loading ? "Signing in…" : "Sign In"}
       </button>

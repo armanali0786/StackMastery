@@ -2,6 +2,10 @@
 "use client";
 
 import { useState } from "react";
+import { API_BASE_URL } from "../../../lib/api";
+import { useAuth } from "../../../lib/contexts/AuthContext";
+import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 interface SignupFormProps {
   onSwitchToLogin: () => void;
@@ -15,37 +19,41 @@ export default function SignupForm({ onSwitchToLogin }: SignupFormProps) {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [message, setMessage] = useState<{ type: "error" | "success"; text: string } | null>(null);
   const [loading, setLoading] = useState(false);
+  const { login } = useAuth();
+  const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setMessage(null);
 
-    if (!firstName || !lastName) return setMessage({ type: "error", text: "Please enter your full name." });
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return setMessage({ type: "error", text: "Enter a valid email address." });
-    if (password.length < 8) return setMessage({ type: "error", text: "Password must be at least 8 characters." });
-    if (password !== confirmPassword) return setMessage({ type: "error", text: "Passwords do not match." });
-    if (!agreeTerms) return setMessage({ type: "error", text: "Please agree to the Terms of Service." });
+    if (!firstName || !lastName) return toast.error("Please enter your full name.");
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return toast.error("Enter a valid email address.");
+    if (password.length < 8) return toast.error("Password must be at least 8 characters.");
+    if (password !== confirmPassword) return toast.error("Passwords do not match.");
+    if (!agreeTerms) return toast.error("Please agree to the Terms of Service.");
 
     setLoading(true);
 
-    // Demo signup
-    setTimeout(() => {
-      const users = JSON.parse(localStorage.getItem("iph_users") || "{}");
-      if (users[email]) {
-        setMessage({ type: "error", text: "An account with this email already exists." });
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/auth/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: `${firstName} ${lastName}`, email, password }),
+      });
+      const data = await res.json();
+
+      if (res.ok) {
+        toast.success("Account created successfully!");
+        login(data.user, data.token);
+        router.push("/dsa");
       } else {
-        users[email] = { name: `${firstName} ${lastName}`, pw: btoa(password) };
-        localStorage.setItem("iph_users", JSON.stringify(users));
-        localStorage.setItem("iph_session", JSON.stringify({ email, name: `${firstName} ${lastName}` }));
-        setMessage({ type: "success", text: "✓ Account created! Redirecting…" });
-        setTimeout(() => {
-          window.location.href = "/interview-prep";
-        }, 1200);
+        toast.error(data.error || "An error occurred during registration.");
       }
+    } catch (error) {
+      toast.error("Network error occurred.");
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -56,16 +64,6 @@ export default function SignupForm({ onSwitchToLogin }: SignupFormProps) {
           Free forever. No credit card. 200+ topics across 5 subjects waiting for you.
         </p>
       </div>
-
-      {message && (
-        <div
-          className={`p-4 rounded-xl text-sm font-mono ${
-            message.type === "error" ? "bg-red-950/30 border border-red-800/40 text-red-300" : "bg-emerald-950/30 border border-emerald-800/40 text-emerald-300"
-          }`}
-        >
-          {message.text}
-        </div>
-      )}
 
       <div className="grid grid-cols-2 gap-4">
         <div>
