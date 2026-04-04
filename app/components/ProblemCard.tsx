@@ -23,6 +23,7 @@ type Props = {
 
   toggleNoteOpen: (key: string) => void;
   updateNote: (key: string, val: string) => void;
+  onBlurNote?: () => void;
 };
 
 export default function ProblemCard({
@@ -40,6 +41,7 @@ export default function ProblemCard({
   toggleFav,
   toggleNoteOpen,
   updateNote,
+  onBlurNote,
 }: Props) {
 
   const key = `${monthIdx}_${topicIdx}_${probIdx}`;
@@ -153,6 +155,7 @@ export default function ProblemCard({
             <textarea
               value={note}
               onChange={(e) => updateNote(key, e.target.value)}
+              onBlur={onBlurNote}
               className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm"
             />
           </div>

@@ -21,6 +21,7 @@ type Props = {
 
   toggleNoteOpen: (key: string) => void;
   updateNote: (key: string, val: string) => void;
+  onBlurNote?: () => void;
 };
 
 export default function FavPanel({
@@ -35,6 +36,7 @@ export default function FavPanel({
   toggleFav,
   toggleNoteOpen,
   updateNote,
+  onBlurNote,
 }: Props) {
 
   const favItems: any[] = [];
@@ -89,6 +91,7 @@ export default function FavPanel({
             toggleFav={toggleFav}
             toggleNoteOpen={toggleNoteOpen}
             updateNote={updateNote}
+            onBlurNote={onBlurNote}
           />
         );
       })}

@@ -169,7 +169,7 @@ const DATA: ProblemData[] = [
 ];
 
 export default function DSATrackerPage() {
-  const { state, setState, favs, setFavs, notes, setNotes, globalNote, setGlobalNote } = useTrackerData<State, Fav, Notes>("dsa");
+  const { state, setState, favs, setFavs, notes, setNotes, globalNote, setGlobalNote, markState, toggleFavMark, syncNotes } = useTrackerData<State, Fav, Notes>("dsa");
   const [currentTab, setCurrentTab] = useState<"all" | "fav">("all");
   const [openNotes, setOpenNotes] = useState<Record<string, boolean>>({});
 
@@ -179,23 +179,17 @@ export default function DSATrackerPage() {
   // ── Actions ──
   const toggleSolve = (m: number, t: number, p: number) => {
     const k = key(m, t, p);
-    setState((prev: State) => ({
-      ...prev,
-      [k]: prev[k] === "done" ? "todo" : "done",
-    }));
+    markState(k, state[k] === "done" ? "todo" : "done");
   };
 
   const toggleReview = (m: number, t: number, p: number) => {
     const k = key(m, t, p);
-    setState((prev: State) => ({
-      ...prev,
-      [k]: prev[k] === "review" ? "todo" : "review",
-    }));
+    markState(k, state[k] === "review" ? "todo" : "review");
   };
 
   const toggleFav = (m: number, t: number, p: number) => {
     const k = key(m, t, p);
-    setFavs((prev: Fav) => ({ ...prev, [k]: !prev[k] }));
+    toggleFavMark(k);
   };
 
   const toggleNoteOpen = (k: string) => {
@@ -272,12 +266,14 @@ export default function DSATrackerPage() {
             toggleFav={toggleFav}
             toggleNoteOpen={toggleNoteOpen}
             updateNote={updateNote}
+            onBlurNote={syncNotes}
           />
         )}
 
         {currentTab === "all" &&
           DATA.map((month, mi) => (
             <MonthSection
+              key={mi}
               theme={dsaTheme}
               month={month}
               monthIndex={mi}
@@ -290,6 +286,7 @@ export default function DSATrackerPage() {
               toggleFav={toggleFav}
               toggleNoteOpen={toggleNoteOpen}
               updateNote={updateNote}
+              onBlurNote={syncNotes}
             />
           ))}
 
@@ -297,6 +294,7 @@ export default function DSATrackerPage() {
           theme={dsaTheme}
           value={globalNote}
           onChange={(e) => setGlobalNote(e.target.value)}
+          onBlur={syncNotes}
         />
       </div>
     </div>

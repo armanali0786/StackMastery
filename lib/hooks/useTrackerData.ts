@@ -2,7 +2,6 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { fetchWithAuth } from '../api';
 import { useAuth } from '../contexts/AuthContext';
 import toast from 'react-hot-toast';
-import Link from 'next/link';
 import React from 'react';
 
 // Session key for guest data: "guest_tracker_dsa", etc.
@@ -92,38 +91,46 @@ export function useTrackerData<S = any, F = any, N = any>(subject: string) {
     }
   }, [isGuest]);
 
-  // Guest write wrappers — show nudge on first action
-  const setStateWithNudge = useCallback(
-    (val: S | ((prev: S) => S)) => {
+  // Intent-specific action functions with toast feedback
+  const markState = useCallback((key: string, value: string) => {
+    if (isGuest) {
       triggerGuestNudge();
-      setState(val);
-    },
-    [triggerGuestNudge]
-  );
+    } else {
+      if (value === 'done') toast.success('✅ Marked as Done!', { duration: 1500 });
+      else if (value === 'review') toast('🔁 Added to Review.', { duration: 1500, icon: '📌' });
+      else toast('↩ Unmarked.', { duration: 1000 });
+    }
+    setState((prev: any) => ({ ...prev, [key]: value }));
+  }, [isGuest, triggerGuestNudge]);
 
-  const setFavsWithNudge = useCallback(
-    (val: F | ((prev: F) => F)) => {
-      triggerGuestNudge();
-      setFavs(val);
-    },
-    [triggerGuestNudge]
-  );
+  const toggleFavMark = useCallback((key: string) => {
+    const next = !(favs as any)[key];
 
-  const setNotesWithNudge = useCallback(
-    (val: N | ((prev: N) => N)) => {
+    if (isGuest) {
       triggerGuestNudge();
-      setNotes(val);
-    },
-    [triggerGuestNudge]
-  );
+    } else {
+      if (next) toast('⭐ Added to Favourites!', { duration: 1500, icon: '❤️' });
+      else toast('💔 Removed from Favourites.', { duration: 1200 });
+    }
+    setFavs((prev: any) => ({ ...prev, [key]: next }));
+  }, [isGuest, triggerGuestNudge, favs]);
 
-  const setGlobalNoteWithNudge = useCallback(
-    (val: string) => {
-      triggerGuestNudge();
-      setGlobalNote(val);
-    },
-    [triggerGuestNudge]
-  );
+  // Manual trigger to sync notes only onBlur
+  const syncNotes = useCallback(() => {
+    if (isGuest) return;
+    
+    // Although the general sync handles state and favs, we'll send the entire object here
+    // to ensure notes are saved exactly when requested.
+    fetchWithAuth(`/api/tracker/${subject}`, {
+      method: 'PUT',
+      body: JSON.stringify({ states: state, favs, notes, globalNote }),
+    }).then(() => {
+       toast.success('📝 Notes saved!', { duration: 1500 });
+    }).catch((err) => {
+      console.error('Failed to save notes', err);
+      toast.error('Failed to save notes. Check your connection.');
+    });
+  }, [isGuest, subject, state, favs, notes, globalNote]);
 
   // Load data based on auth state
   useEffect(() => {
@@ -164,7 +171,7 @@ export function useTrackerData<S = any, F = any, N = any>(subject: string) {
     isInitialMount.current = true; // Reset on auth change
   }, [subject, isGuest, authLoading]);
 
-  // Sync data based on auth state
+  // Sync data based on auth state - OPTIMIZED: only state and favs are synced automatically
   useEffect(() => {
     if (loading) return;
     if (authLoading) return;
@@ -175,23 +182,23 @@ export function useTrackerData<S = any, F = any, N = any>(subject: string) {
     }
 
     if (isGuest) {
-      // Guest: persist to sessionStorage immediately
+      // Guest: persist to sessionStorage immediately (including notes)
       saveGuestData(subject, { states: state, favs, notes, globalNote });
     } else {
-      // Logged-in: debounced API sync
+      // Logged-in: debounced API sync for state and favs only
+      // Notes are handled via syncNotes() manually
       const handler = setTimeout(() => {
         fetchWithAuth(`/api/tracker/${subject}`, {
           method: 'PUT',
           body: JSON.stringify({ states: state, favs, notes, globalNote }),
         }).catch((err) => {
           console.error('Failed to sync to API', err);
-          toast.error('Connection lost. Progress not saved!');
         });
       }, 1000);
 
       return () => clearTimeout(handler);
     }
-  }, [state, favs, notes, globalNote, subject, loading, isGuest, authLoading]);
+  }, [state, favs, subject, loading, isGuest, authLoading]);
 
   // Clear guest data on tab close
   useEffect(() => {
@@ -204,13 +211,16 @@ export function useTrackerData<S = any, F = any, N = any>(subject: string) {
 
   return {
     state,
-    setState: isGuest ? setStateWithNudge : setState,
+    setState, // kept for raw updates (like typing in textarea)
     favs,
-    setFavs: isGuest ? setFavsWithNudge : setFavs,
+    setFavs,
     notes,
-    setNotes: isGuest ? setNotesWithNudge : setNotes,
+    setNotes,
     globalNote,
-    setGlobalNote: isGuest ? setGlobalNoteWithNudge : setGlobalNote,
+    setGlobalNote,
+    markState,      // helper with toasts
+    toggleFavMark,  // helper with toasts
+    syncNotes,      // manual sync for notes
     loading: authLoading || loading,
     isGuest,
   };

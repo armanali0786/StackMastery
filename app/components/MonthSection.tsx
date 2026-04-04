@@ -17,6 +17,7 @@ export default function MonthSection({
   toggleFav,
   toggleNoteOpen,
   updateNote,
+  onBlurNote,
 }: any) {
 
   const [collapsed, setCollapsed] = useState(false);
@@ -90,6 +91,7 @@ export default function MonthSection({
                       toggleFav={toggleFav}
                       toggleNoteOpen={toggleNoteOpen}
                       updateNote={updateNote}
+                      onBlurNote={onBlurNote}
                     />
                   );
                 })}

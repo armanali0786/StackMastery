@@ -5,6 +5,7 @@ import { Theme } from "./types/theme";
 type Props = {
   value: string;
   onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  onBlur?: () => void;
   theme: Theme;
   title?: string;
 };
@@ -12,6 +13,7 @@ type Props = {
 export default function GlobalNotebook({
   value,
   onChange,
+  onBlur,
   theme,
   title = "Global Notes",
 }: Props) {
@@ -25,6 +27,7 @@ export default function GlobalNotebook({
       <textarea
         value={value}
         onChange={onChange}
+        onBlur={onBlur}
         placeholder="Write overall notes, patterns, mistakes, interview insights..."
         className="
           w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3

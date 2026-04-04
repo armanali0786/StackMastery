@@ -69,7 +69,7 @@ const DATA: ProblemData[] = [
 const TRACKER_KEY = "oops";
 
 export default function OOPsTrackerPage() {
-  const { state, setState, favs, setFavs, notes, setNotes, globalNote, setGlobalNote } = useTrackerData<State, Fav, Notes>(TRACKER_KEY);
+  const { state, setState, favs, setFavs, notes, setNotes, globalNote, setGlobalNote, markState, toggleFavMark, syncNotes } = useTrackerData<State, Fav, Notes>(TRACKER_KEY);
   const [currentTab, setCurrentTab] = useState<"all" | "fav">("all");
   const [openNotes, setOpenNotes] = useState<Record<string, boolean>>({});
 
@@ -77,23 +77,17 @@ export default function OOPsTrackerPage() {
 
   const toggleSolve = (m: number, t: number, p: number) => {
     const k = keyGen(m, t, p);
-    setState((prev: State) => ({
-      ...prev,
-      [k]: prev[k] === "done" ? "todo" : "done",
-    }));
+    markState(k, state[k] === "done" ? "todo" : "done");
   };
 
   const toggleReview = (m: number, t: number, p: number) => {
     const k = keyGen(m, t, p);
-    setState((prev: State) => ({
-      ...prev,
-      [k]: prev[k] === "review" ? "todo" : "review",
-    }));
+    markState(k, state[k] === "review" ? "todo" : "review");
   };
 
   const toggleFav = (m: number, t: number, p: number) => {
     const k = keyGen(m, t, p);
-    setFavs((prev: Fav) => ({ ...prev, [k]: !prev[k] }));
+    toggleFavMark(k);
   };
 
   const toggleNoteOpen = (k: string) => {
@@ -176,12 +170,14 @@ export default function OOPsTrackerPage() {
             toggleFav={toggleFav}
             toggleNoteOpen={toggleNoteOpen}
             updateNote={updateNote}
+            onBlurNote={syncNotes}
           />
         )}
 
         {currentTab === "all" &&
           DATA.map((month, mi) => (
             <MonthSection
+              key={mi}
               theme={oopsTheme}
               month={month}
               monthIndex={mi}
@@ -194,6 +190,7 @@ export default function OOPsTrackerPage() {
               toggleFav={toggleFav}
               toggleNoteOpen={toggleNoteOpen}
               updateNote={updateNote}
+              onBlurNote={syncNotes}
             />
           ))}
 
@@ -201,6 +198,7 @@ export default function OOPsTrackerPage() {
           theme={oopsTheme}
           value={globalNote}
           onChange={(e) => setGlobalNote(e.target.value)}
+          onBlur={syncNotes}
         />
       </div>
     </div>
