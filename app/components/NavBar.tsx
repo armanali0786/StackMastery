@@ -29,10 +29,10 @@ export default function NavBar() {
           className="flex items-center gap-3 font-extrabold text-lg tracking-tight"
         >
           <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center font-mono font-black text-black text-sm">
-            AR
+            SM
           </div>
           <span>
-            Prep<span className="text-emerald-500">Stack</span>
+            Stack<span className="text-emerald-500">Mastery</span>
           </span>
         </Link>
 
