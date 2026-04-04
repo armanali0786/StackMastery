@@ -15,12 +15,10 @@ export const fetchWithAuth = async (uri: string, options: RequestInit = {}) => {
   const response = await fetch(url, { ...options, headers });
 
   if (response.status === 401) {
-    // Optionally redirect to login or clear token
+    // Clear stale token silently — do NOT redirect, guest mode handles this gracefully
     if (typeof window !== 'undefined') {
       localStorage.removeItem('token');
-      if (window.location.pathname !== '/login') {
-        window.location.href = '/login';
-      }
+      localStorage.removeItem('user');
     }
   }
 

@@ -49,7 +49,7 @@ export default function LoginForm({ onSwitchToSignup, onForgotPassword }: LoginF
       const data = await res.json();
 
       if (res.ok) {
-        toast.success("Welcome back! Redirecting...");
+        toast.success("Welcome back!");
         login(data.user, data.token);
         router.push("/");
       } else {
@@ -149,8 +149,8 @@ export default function LoginForm({ onSwitchToSignup, onForgotPassword }: LoginF
         type="submit"
         disabled={loading}
         className={`w-full py-4 font-mono font-bold uppercase tracking-wider rounded-xl transition-all ${loading
-            ? "bg-emerald-600/50 cursor-not-allowed"
-            : "bg-emerald-500 hover:bg-emerald-400 hover:shadow-emerald-500/30 hover:-translate-y-0.5 text-black"
+          ? "bg-emerald-600/50 cursor-not-allowed"
+          : "bg-emerald-500 hover:bg-emerald-400 hover:shadow-emerald-500/30 hover:-translate-y-0.5 text-black"
           }`}
       >
         {loading ? "Signing in…" : "Sign In"}
