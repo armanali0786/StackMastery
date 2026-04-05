@@ -10,6 +10,7 @@ import Legend from "../components/Legend";
 import FavPanel from "../components/FavPanel";
 import MonthSection from "../components/MonthSection";
 import GlobalNotebook from "../components/GlobalNotebook";
+import TrackerSkeleton from "../components/TrackerSkeleton";
 import { ProblemData, State, Fav, Notes } from "./types";
 
 
@@ -169,7 +170,7 @@ const DATA: ProblemData[] = [
 ];
 
 export default function DSATrackerPage() {
-  const { state, setState, favs, setFavs, notes, setNotes, globalNote, setGlobalNote, markState, toggleFavMark, syncNotes } = useTrackerData<State, Fav, Notes>("dsa");
+  const { state, setState, favs, setFavs, notes, setNotes, globalNote, setGlobalNote, markState, toggleFavMark, syncNotes, loading } = useTrackerData<State, Fav, Notes>("dsa");
   const [currentTab, setCurrentTab] = useState<"all" | "fav">("all");
   const [openNotes, setOpenNotes] = useState<Record<string, boolean>>({});
 
@@ -230,6 +231,15 @@ export default function DSATrackerPage() {
   };
 
   const stats = calculateStats();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0f] text-slate-200 font-sans">
+        <div className="fixed inset-0 pointer-events-none z-0 bg-grid-accent opacity-5" />
+        <TrackerSkeleton />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#0a0a0f] text-slate-200 font-sans">

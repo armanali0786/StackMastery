@@ -9,6 +9,7 @@ import Legend from "../components/Legend";
 import FavPanel from "../components/FavPanel";
 import MonthSection from "../components/MonthSection";
 import GlobalNotebook from "../components/GlobalNotebook";
+import TrackerSkeleton from "../components/TrackerSkeleton";
 import { ProblemData, State, Fav, Notes } from "./types";
 import { systemDesignTheme } from "../components/constants/themes";
 import TrackerHeader from "../components/TrackerHeader";
@@ -48,7 +49,7 @@ const DATA: ProblemData[] = [
 const TRACKER_KEY = "sd";
 
 export default function SystemDesignTrackerPage() {
-  const { state, setState, favs, setFavs, notes, setNotes, globalNote, setGlobalNote } = useTrackerData<State, Fav, Notes>(TRACKER_KEY);
+  const { state, setState, favs, setFavs, notes, setNotes, globalNote, setGlobalNote, loading } = useTrackerData<State, Fav, Notes>(TRACKER_KEY);
   const [currentTab, setCurrentTab] = useState<"all" | "fav">("all");
   const [openNotes, setOpenNotes] = useState<Record<string, boolean>>({});
 
@@ -109,6 +110,15 @@ export default function SystemDesignTrackerPage() {
   };
 
   const stats = calculateStats();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0f] text-slate-200 font-sans">
+        <div className="fixed inset-0 pointer-events-none z-0 bg-grid-emerald opacity-5" />
+        <TrackerSkeleton />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#0a0a0f] text-slate-200 font-sans">
