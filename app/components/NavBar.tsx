@@ -12,6 +12,7 @@ const navItems = [
   { label: "DBMS", href: "/dbms" },
   { label: "OS", href: "/os" },
   { label: "System Design", href: "/system-design" },
+  { label: "Prep Guide", href: "/prep-guide" },
 ];
 
 export default function NavBar() {
