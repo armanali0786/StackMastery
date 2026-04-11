@@ -42,7 +42,7 @@ export default function SystemDesignTrackerPage() {
   const { topicData, loading: contentLoading } = useTopicContent("sd");
   const DATA: ProblemData[] = (topicData as ProblemData[]) || FALLBACK_DATA;
 
-  const { state, setState, favs, setFavs, notes, setNotes, globalNote, setGlobalNote, loading: trackerLoading } = useTrackerData<State, Fav, Notes>(TRACKER_KEY);
+  const { state, setState, favs, setFavs, notes, setNotes, globalNote, setGlobalNote, markState, toggleFavMark, syncNotes, loading: trackerLoading } = useTrackerData<State, Fav, Notes>(TRACKER_KEY);
   const [currentTab, setCurrentTab] = useState<"all" | "fav">("all");
   const [openNotes, setOpenNotes] = useState<Record<string, boolean>>({});
 
@@ -52,23 +52,19 @@ export default function SystemDesignTrackerPage() {
 
   const toggleSolve = (m: number, t: number, p: number) => {
     const k = keyGen(m, t, p);
-    setState((prev: State) => ({
-      ...prev,
-      [k]: prev[k] === "done" ? "todo" : "done",
-    }));
+    const nextVal = state[k as keyof State] === "done" ? "todo" : "done";
+    markState(k, nextVal as string);
   };
 
   const toggleReview = (m: number, t: number, p: number) => {
     const k = keyGen(m, t, p);
-    setState((prev: State) => ({
-      ...prev,
-      [k]: prev[k] === "review" ? "todo" : "review",
-    }));
+    const nextVal = state[k as keyof State] === "review" ? "todo" : "review";
+    markState(k, nextVal as string);
   };
 
   const toggleFav = (m: number, t: number, p: number) => {
     const k = keyGen(m, t, p);
-    setFavs((prev: Fav) => ({ ...prev, [k]: !prev[k] }));
+    toggleFavMark(k);
   };
 
   const toggleNoteOpen = (k: string) => {
@@ -149,6 +145,7 @@ export default function SystemDesignTrackerPage() {
             toggleFav={toggleFav}
             toggleNoteOpen={toggleNoteOpen}
             updateNote={updateNote}
+            onBlurNote={syncNotes}
           />
         )}
 
@@ -167,6 +164,7 @@ export default function SystemDesignTrackerPage() {
               toggleFav={toggleFav}
               toggleNoteOpen={toggleNoteOpen}
               updateNote={updateNote}
+              onBlurNote={syncNotes}
             />
           ))}
 
@@ -174,6 +172,7 @@ export default function SystemDesignTrackerPage() {
           theme={systemDesignTheme}
           value={globalNote}
           onChange={(e) => setGlobalNote(e.target.value)}
+          onBlur={syncNotes}
         />
       </div>
     </div>
