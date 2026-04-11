@@ -116,24 +116,56 @@ function PrepGuideEditor({ guide, onClose, onRefresh }: { guide: any, onClose: (
   const saveGuide = async () => {
     try {
       const parsed = JSON.parse(jsonText);
-      setIsSaving(true);
-      const isNew = !parsed._id;
-      const url = isNew ? '/api/admin/prep-guides' : `/api/admin/prep-guides/${parsed._id}`;
-      const method = isNew ? 'POST' : 'PUT';
 
-      const res = await fetchWithAuth(url, {
-        method,
-        body: JSON.stringify(parsed)
+      if (!Array.isArray(parsed)) {
+        toast.error("Bulk upload requires an array of guides");
+        return;
+      }
+
+      const isValidObjectId = (id: string) =>
+        /^[0-9a-fA-F]{24}$/.test(id);
+
+      // ✅ Clean all items
+      const cleaned = parsed.map((item: any) => {
+        const newItem = { ...item };
+
+        if (!isValidObjectId(newItem._id)) {
+          delete newItem._id;
+        }
+
+        return newItem;
       });
 
-      if (res.ok) {
-        toast.success(isNew ? 'Created successfully' : 'Updated successfully');
-        onRefresh();
-      } else {
-        toast.error('Failed to save guide');
+      setIsSaving(true);
+
+      const CHUNK_SIZE = 500; // important
+      let successCount = 0;
+
+      for (let i = 0; i < cleaned.length; i += CHUNK_SIZE) {
+        const chunk = cleaned.slice(i, i + CHUNK_SIZE);
+
+        const res = await fetchWithAuth(
+          "/api/admin/prep-guides/bulk",
+          {
+            method: "POST",
+            body: JSON.stringify({ data: chunk }),
+          }
+        );
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.error || "Bulk insert failed");
+        }
+
+        successCount += chunk.length;
       }
+
+      toast.success(`Inserted ${successCount} guides 🚀`);
+      onRefresh();
+      onClose();
+
     } catch (e: any) {
-      toast.error(`Invalid JSON: ${e.message}`);
+      toast.error(`Error: ${e.message}`);
     } finally {
       setIsSaving(false);
     }
