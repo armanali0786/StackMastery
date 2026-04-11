@@ -6,6 +6,7 @@ import { FiArrowLeft, FiBookmark, FiShare2, FiCheckCircle, FiBookOpen, FiTermina
 import Link from "next/link";
 import toast from "react-hot-toast";
 import { staticGuides } from "../staticData";
+import { fetchWithAuth } from "../../../lib/api";
 
 export default function PrepGuideDetailPage() {
   const { id } = useParams();
@@ -16,22 +17,39 @@ export default function PrepGuideDetailPage() {
 
   useEffect(() => {
     if (id) {
-      loadStaticGuide();
+      fetchGuideDetail();
     }
   }, [id]);
 
-  const loadStaticGuide = () => {
+  const fetchGuideDetail = async () => {
     setIsLoading(true);
-    // Simulate network delay
-    setTimeout(() => {
-      const found = staticGuides.find((g: any) => g._id === id);
-      if (found) {
-        setGuide(found);
+    try {
+      const res = await fetchWithAuth(`/api/prep-guides/${id}`);
+      let foundGuide = null;
+      
+      if (res.ok) {
+        const json = await res.json();
+        foundGuide = json.guide;
+      }
+      
+      // Fallback to static data
+      if (!foundGuide) {
+        foundGuide = staticGuides.find((g: any) => g._id === id);
+      }
+
+      if (foundGuide) {
+        setGuide(foundGuide);
       } else {
         toast.error("Failed to load guide");
       }
+    } catch (error) {
+      console.error(error);
+      const backup = staticGuides.find((g: any) => g._id === id);
+      if (backup) setGuide(backup);
+      else toast.error("Failed to load guide");
+    } finally {
       setIsLoading(false);
-    }, 300);
+    }
   };
 
   const handleSave = () => {
