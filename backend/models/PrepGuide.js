@@ -4,7 +4,7 @@ const prepGuideSchema = new mongoose.Schema(
   {
     type: {
       type: String,
-      enum: ['company', 'role'],
+      enum: ['company', 'role', 'tips'],
       required: true,
     },
     title: {
@@ -45,6 +45,11 @@ const prepGuideSchema = new mongoose.Schema(
           requiredSkills: [String],
           faqs: [{ question: String, answer: String }],
           roadmap: String
+        }
+
+        If type === 'tips':
+        {
+          markdown: String
         }
       */
     },

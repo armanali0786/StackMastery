@@ -8,7 +8,7 @@ import { fetchWithAuth } from "../../lib/api";
 
 interface PrepGuide {
   _id: string;
-  type: "company" | "role";
+  type: "company" | "role" | "tips";
   title: string;
   difficulty: "Beginner" | "Intermediate" | "Advanced";
   tags: string[];
@@ -18,7 +18,7 @@ interface PrepGuide {
 export default function PrepGuidePage() {
   const [guides, setGuides] = useState<PrepGuide[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"all" | "company" | "role" | "trending">("all");
+  const [activeTab, setActiveTab] = useState<"all" | "company" | "role" | "tips" | "trending">("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [difficultyFilter, setDifficultyFilter] = useState("All");
@@ -78,6 +78,7 @@ export default function PrepGuidePage() {
 
   const tabs = [
     { id: "all", label: "All Guides" },
+    { id: "tips", label: "Interview Tips" },
     { id: "company", label: "Companies" },
     { id: "role", label: "Roles" },
     { id: "trending", label: "Trending", icon: <FiTrendingUp className="w-4 h-4" /> }

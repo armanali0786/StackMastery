@@ -4,7 +4,7 @@ import { FiBriefcase, FiAperture, FiBookOpen, FiBookmark } from "react-icons/fi"
 interface PrepGuideCardProps {
   guide: {
     _id: string;
-    type: "company" | "role";
+    type: "company" | "role" | "tips";
     title: string;
     difficulty: "Beginner" | "Intermediate" | "Advanced";
     tags: string[];
@@ -27,7 +27,19 @@ export default function PrepGuideCard({ guide }: PrepGuideCardProps) {
     }
   };
 
-  const IconType = guide.type === "company" ? FiAperture : FiBriefcase;
+  const getIcon = () => {
+    if (guide.type === "company") return FiAperture;
+    if (guide.type === "tips") return FiBookOpen;
+    return FiBriefcase;
+  };
+  
+  const IconType = getIcon();
+
+  const getBadgeStyles = () => {
+    if (guide.type === "company") return "bg-indigo-500/10 border-indigo-500/20 text-indigo-400";
+    if (guide.type === "tips") return "bg-emerald-500/10 border-emerald-500/20 text-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.1)]";
+    return "bg-cyan-500/10 border-cyan-500/20 text-cyan-400";
+  };
 
   return (
     <Link href={`/prep-guide/${guide._id}`} className="group block">
@@ -39,7 +51,7 @@ export default function PrepGuideCard({ guide }: PrepGuideCardProps) {
         <div className="relative z-10 flex flex-col h-full">
           {/* Header row */}
           <div className="flex justify-between items-start mb-4">
-            <div className={`p-2.5 rounded-xl border ${guide.type === "company" ? "bg-indigo-500/10 border-indigo-500/20 text-indigo-400" : "bg-cyan-500/10 border-cyan-500/20 text-cyan-400"}`}>
+            <div className={`p-2.5 rounded-xl border ${getBadgeStyles()}`}>
               <IconType className="w-6 h-6" />
             </div>
             
@@ -54,7 +66,7 @@ export default function PrepGuideCard({ guide }: PrepGuideCardProps) {
           </h3>
           
           <div className="text-xs font-mono text-slate-400 uppercase tracking-widest mb-4">
-            {guide.type === "company" ? "Company Guide" : "Role Guide"}
+            {guide.type === "company" ? "Company Guide" : guide.type === "tips" ? "Interview Tip" : "Role Guide"}
           </div>
 
           {/* Tags */}
