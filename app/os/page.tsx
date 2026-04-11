@@ -11,11 +11,12 @@ import MonthSection from "../components/MonthSection";
 import GlobalNotebook from "../components/GlobalNotebook";
 import TrackerSkeleton from "../components/TrackerSkeleton";
 import { ProblemData, State, Fav, Notes } from "./types";
+import { useTopicContent } from "../../lib/hooks/useTopicContent";
 import { osTheme } from "../components/constants/themes";
 import TrackerHeader from "../components/TrackerHeader";
 
 // ── OS DATA ── (pasted from your HTML)
-const DATA: ProblemData[] = [
+export const FALLBACK_DATA: ProblemData[] = [
   {
     month: "Fundamentals",
     theme: "OS BASICS & PROCESS MANAGEMENT",
@@ -43,16 +44,19 @@ const DATA: ProblemData[] = [
       },
     ],
   },
-  // ... paste the remaining months here (Scheduling, Synchronization, Memory, Storage)
-  // You can copy-paste the full DATA array from your HTML
 ];
 
 const TRACKER_KEY = "os";
 
 export default function OSTrackerPage() {
-  const { state, setState, favs, setFavs, notes, setNotes, globalNote, setGlobalNote, markState, toggleFavMark, syncNotes, loading } = useTrackerData<State, Fav, Notes>(TRACKER_KEY);
+  const { topicData, loading: contentLoading } = useTopicContent("os");
+  const DATA: ProblemData[] = (topicData as ProblemData[]) || FALLBACK_DATA;
+
+  const { state, setState, favs, setFavs, notes, setNotes, globalNote, setGlobalNote, markState, toggleFavMark, syncNotes, loading: trackerLoading } = useTrackerData<State, Fav, Notes>(TRACKER_KEY);
   const [currentTab, setCurrentTab] = useState<"all" | "fav">("all");
   const [openNotes, setOpenNotes] = useState<Record<string, boolean>>({});
+
+  const loading = contentLoading || trackerLoading;
 
   const keyGen = (m: number, t: number, p: number) => `${m}_${t}_${p}`;
 
@@ -82,7 +86,7 @@ export default function OSTrackerPage() {
   const calculateStats = () => {
     let total = 0, solved = 0, review = 0, favCount = 0;
 
-    DATA.forEach((month, mi) =>
+    DATA?.forEach((month, mi) =>
       month.topics.forEach((topic, ti) =>
         topic.problems.forEach((_, pi) => {
           total++;
@@ -155,7 +159,7 @@ export default function OSTrackerPage() {
         )}
 
         {currentTab === "all" &&
-          DATA.map((month, mi) => (
+          DATA?.map((month, mi) => (
             <MonthSection
               key={mi}
               theme={osTheme}

@@ -12,10 +12,11 @@ import MonthSection from "../components/MonthSection";
 import GlobalNotebook from "../components/GlobalNotebook";
 import TrackerSkeleton from "../components/TrackerSkeleton";
 import { ProblemData, State, Fav, Notes } from "./types";
+import { useTopicContent } from "../../lib/hooks/useTopicContent";
 
 
 
-const DATA: ProblemData[] = [
+export const FALLBACK_DATA: ProblemData[] = [
   {
     month: "Month 1", theme: "FOUNDATIONS", topics: [
       {
@@ -68,111 +69,17 @@ const DATA: ProblemData[] = [
       },
     ]
   },
-  {
-    month: "Month 2", theme: "STRINGS & LINKED LIST", topics: [
-      {
-        label: "Strings", problems: [
-          { name: "Reverse String", links: [{ l: "LC", u: "https://leetcode.com/problems/reverse-string/", t: "lc" }] },
-          { name: "Longest Common Prefix", links: [{ l: "LC", u: "https://leetcode.com/problems/longest-common-prefix/", t: "lc" }] },
-          { name: "Isomorphic Strings", links: [{ l: "LC", u: "https://leetcode.com/problems/isomorphic-strings/", t: "lc" }] },
-          { name: "Longest Substring Without Repeat", links: [{ l: "LC", u: "https://leetcode.com/problems/longest-substring-without-repeating-characters/", t: "lc" }] },
-          { name: "Minimum Window Substring", links: [{ l: "LC", u: "https://leetcode.com/problems/minimum-window-substring/", t: "lc" }] },
-          { name: "Check Subsequence", links: [{ l: "LC", u: "https://leetcode.com/problems/is-subsequence/", t: "lc" }] },
-        ]
-      },
-      {
-        label: "Linked List", problems: [
-          { name: "Reverse Linked List", links: [{ l: "LC", u: "https://leetcode.com/problems/reverse-linked-list/", t: "lc" }] },
-          { name: "Middle of Linked List", links: [{ l: "LC", u: "https://leetcode.com/problems/middle-of-the-linked-list/", t: "lc" }] },
-          { name: "Detect Cycle", links: [{ l: "LC", u: "https://leetcode.com/problems/linked-list-cycle/", t: "lc" }] },
-          { name: "Merge Two Sorted Lists", links: [{ l: "LC", u: "https://leetcode.com/problems/merge-two-sorted-lists/", t: "lc" }] },
-          { name: "Remove Nth Node", links: [{ l: "LC", u: "https://leetcode.com/problems/remove-nth-node-from-end-of-list/", t: "lc" }] },
-          { name: "Palindrome Linked List", links: [{ l: "LC", u: "https://leetcode.com/problems/palindrome-linked-list/", t: "lc" }] },
-        ]
-      },
-    ]
-  },
-  {
-    month: "Month 3", theme: "STACK & QUEUE", topics: [
-      {
-        label: "Stack", problems: [
-          { name: "Valid Parentheses", links: [{ l: "LC", u: "https://leetcode.com/problems/valid-parentheses/", t: "lc" }] },
-          { name: "Min Stack", links: [{ l: "LC", u: "https://leetcode.com/problems/min-stack/", t: "lc" }] },
-          { name: "Next Greater Element", links: [{ l: "LC", u: "https://leetcode.com/problems/next-greater-element-i/", t: "lc" }] },
-          { name: "Stock Span", links: [{ l: "GFG", u: "https://practice.geeksforgeeks.org/problems/stock-span-problem-1587115621/1", t: "gfg" }] },
-          { name: "Largest Rectangle Histogram", links: [{ l: "LC", u: "https://leetcode.com/problems/largest-rectangle-in-histogram/", t: "lc" }] },
-          { name: "Trapping Rain Water", links: [{ l: "LC", u: "https://leetcode.com/problems/trapping-rain-water/", t: "lc" }] },
-        ]
-      },
-      {
-        label: "Queue / Deque", problems: [
-          { name: "Sliding Window Maximum", links: [{ l: "LC", u: "https://leetcode.com/problems/sliding-window-maximum/", t: "lc" }] },
-          { name: "First Negative in Window", links: [{ l: "GFG", u: "https://practice.geeksforgeeks.org/problems/first-negative-integer-in-every-window-of-size-k3345/1", t: "gfg" }] },
-          { name: "LRU Cache", links: [{ l: "LC", u: "https://leetcode.com/problems/lru-cache/", t: "lc" }] },
-        ]
-      },
-    ]
-  },
-  {
-    month: "Month 4", theme: "TREES", topics: [
-      {
-        label: "Binary Tree", problems: [
-          { name: "Preorder Traversal", links: [{ l: "LC", u: "https://leetcode.com/problems/binary-tree-preorder-traversal/", t: "lc" }] },
-          { name: "Inorder Traversal", links: [{ l: "LC", u: "https://leetcode.com/problems/binary-tree-inorder-traversal/", t: "lc" }] },
-          { name: "Postorder Traversal", links: [{ l: "LC", u: "https://leetcode.com/problems/binary-tree-postorder-traversal/", t: "lc" }] },
-          { name: "Level Order Traversal", links: [{ l: "LC", u: "https://leetcode.com/problems/binary-tree-level-order-traversal/", t: "lc" }] },
-          { name: "Height of Tree", links: [{ l: "GFG", u: "https://practice.geeksforgeeks.org/problems/height-of-binary-tree/1", t: "gfg" }] },
-          { name: "Diameter of Binary Tree", links: [{ l: "LC", u: "https://leetcode.com/problems/diameter-of-binary-tree/", t: "lc" }] },
-          { name: "LCA (Lowest Common Ancestor)", links: [{ l: "LC", u: "https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/", t: "lc" }] },
-        ]
-      },
-      {
-        label: "BST", problems: [
-          { name: "Validate BST", links: [{ l: "LC", u: "https://leetcode.com/problems/validate-binary-search-tree/", t: "lc" }] },
-          { name: "Kth Smallest Element", links: [{ l: "LC", u: "https://leetcode.com/problems/kth-smallest-element-in-a-bst/", t: "lc" }] },
-        ]
-      },
-    ]
-  },
-  {
-    month: "Month 5", theme: "GRAPHS & DP", topics: [
-      {
-        label: "Graphs", problems: [
-          { name: "Number of Islands", links: [{ l: "LC", u: "https://leetcode.com/problems/number-of-islands/", t: "lc" }] },
-          { name: "Flood Fill", links: [{ l: "LC", u: "https://leetcode.com/problems/flood-fill/", t: "lc" }] },
-          { name: "Course Schedule", links: [{ l: "LC", u: "https://leetcode.com/problems/course-schedule/", t: "lc" }] },
-          { name: "Topological Sort", links: [{ l: "GFG", u: "https://practice.geeksforgeeks.org/problems/topological-sort/1", t: "gfg" }] },
-        ]
-      },
-      {
-        label: "Dynamic Programming", problems: [
-          { name: "Climbing Stairs", links: [{ l: "LC", u: "https://leetcode.com/problems/climbing-stairs/", t: "lc" }] },
-          { name: "House Robber", links: [{ l: "LC", u: "https://leetcode.com/problems/house-robber/", t: "lc" }] },
-          { name: "Coin Change", links: [{ l: "LC", u: "https://leetcode.com/problems/coin-change/", t: "lc" }] },
-          { name: "LIS (Longest Increasing Subsequence)", links: [{ l: "LC", u: "https://leetcode.com/problems/longest-increasing-subsequence/", t: "lc" }] },
-          { name: "LCS (Longest Common Subsequence)", links: [{ l: "LC", u: "https://leetcode.com/problems/longest-common-subsequence/", t: "lc" }] },
-        ]
-      },
-    ]
-  },
-  {
-    month: "Month 6", theme: "ADVANCED", topics: [
-      {
-        label: "Advanced Topics", problems: [
-          { name: "Binary Search on Answer (Koko)", links: [{ l: "LC", u: "https://leetcode.com/problems/koko-eating-bananas/", t: "lc" }] },
-          { name: "Allocate Books", links: [{ l: "GFG", u: "https://practice.geeksforgeeks.org/problems/allocate-minimum-number-of-pages0937/1", t: "gfg" }] },
-          { name: "Aggressive Cows", links: [{ l: "GFG", u: "https://practice.geeksforgeeks.org/problems/aggressive-cows/1", t: "gfg" }] },
-          { name: "Bit Manipulation (Single Number)", links: [{ l: "LC", u: "https://leetcode.com/problems/single-number/", t: "lc" }] },
-        ]
-      },
-    ]
-  },
 ];
 
 export default function DSATrackerPage() {
-  const { state, setState, favs, setFavs, notes, setNotes, globalNote, setGlobalNote, markState, toggleFavMark, syncNotes, loading } = useTrackerData<State, Fav, Notes>("dsa");
+  const { topicData, loading: contentLoading } = useTopicContent("dsa");
+  const DATA: ProblemData[] = (topicData as ProblemData[]) || FALLBACK_DATA;
+
+  const { state, setState, favs, setFavs, notes, setNotes, globalNote, setGlobalNote, markState, toggleFavMark, syncNotes, loading: trackerLoading } = useTrackerData<State, Fav, Notes>("dsa");
   const [currentTab, setCurrentTab] = useState<"all" | "fav">("all");
   const [openNotes, setOpenNotes] = useState<Record<string, boolean>>({});
+
+  const loading = contentLoading || trackerLoading;
 
   // Key generator
   const key = (m: number, t: number, p: number) => `${m}_${t}_${p}`;
@@ -208,7 +115,7 @@ export default function DSATrackerPage() {
     let review = 0;
     let favCount = 0;
 
-    DATA.forEach((month, mi) =>
+    DATA?.forEach((month, mi) =>
       month.topics.forEach((topic, ti) =>
         topic.problems.forEach((_, pi) => {
           total++;
@@ -281,7 +188,7 @@ export default function DSATrackerPage() {
         )}
 
         {currentTab === "all" &&
-          DATA.map((month, mi) => (
+          DATA?.map((month, mi) => (
             <MonthSection
               key={mi}
               theme={dsaTheme}

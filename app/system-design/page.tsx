@@ -11,11 +11,12 @@ import MonthSection from "../components/MonthSection";
 import GlobalNotebook from "../components/GlobalNotebook";
 import TrackerSkeleton from "../components/TrackerSkeleton";
 import { ProblemData, State, Fav, Notes } from "./types";
+import { useTopicContent } from "../../lib/hooks/useTopicContent";
 import { systemDesignTheme } from "../components/constants/themes";
 import TrackerHeader from "../components/TrackerHeader";
 
 // ── System Design DATA ── (from your HTML)
-const DATA: ProblemData[] = [
+export const FALLBACK_DATA: ProblemData[] = [
   {
     month: "Fundamentals",
     theme: "CORE CONCEPTS & BUILDING BLOCKS",
@@ -31,27 +32,21 @@ const DATA: ProblemData[] = [
           { name: "SLA, SLO, SLI", links: [{ l: "Web", u: "https://www.geeksforgeeks.org/sla-slo-and-sli-in-cloud-computing/", t: "gfg" }], tags: ["concept"] },
         ],
       },
-      {
-        label: "Networking Basics",
-        problems: [
-          { name: "HTTP vs HTTPS vs HTTP/2 vs HTTP/3", links: [{ l: "Web", u: "https://www.geeksforgeeks.org/difference-between-http-and-https-2/", t: "gfg" }], tags: ["concept"] },
-          { name: "REST vs GraphQL vs gRPC", links: [{ l: "Web", u: "https://www.geeksforgeeks.org/rest-api-vs-graphql-vs-grpc-which-one-to-choose/", t: "gfg" }], tags: ["concept"] },
-          { name: "WebSockets & Long Polling", links: [{ l: "Web", u: "https://www.geeksforgeeks.org/what-is-web-socket-and-how-it-is-different-from-the-http/", t: "gfg" }], tags: ["concept"] },
-          { name: "DNS & CDN", links: [{ l: "Web", u: "https://www.geeksforgeeks.org/how-does-the-domain-name-system-dns-work/", t: "gfg" }], tags: ["concept"] },
-        ],
-      },
     ],
   },
-  // ... paste remaining months (Components, Databases, Reliability, Classic Designs)
-  // You can copy-paste the full DATA array from your original HTML
 ];
 
 const TRACKER_KEY = "sd";
 
 export default function SystemDesignTrackerPage() {
-  const { state, setState, favs, setFavs, notes, setNotes, globalNote, setGlobalNote, loading } = useTrackerData<State, Fav, Notes>(TRACKER_KEY);
+  const { topicData, loading: contentLoading } = useTopicContent("sd");
+  const DATA: ProblemData[] = (topicData as ProblemData[]) || FALLBACK_DATA;
+
+  const { state, setState, favs, setFavs, notes, setNotes, globalNote, setGlobalNote, loading: trackerLoading } = useTrackerData<State, Fav, Notes>(TRACKER_KEY);
   const [currentTab, setCurrentTab] = useState<"all" | "fav">("all");
   const [openNotes, setOpenNotes] = useState<Record<string, boolean>>({});
+
+  const loading = contentLoading || trackerLoading;
 
   const keyGen = (m: number, t: number, p: number) => `${m}_${t}_${p}`;
 

@@ -11,11 +11,12 @@ import GlobalNotebook from "../components/GlobalNotebook";
 import FavPanel from "../components/FavPanel";
 import TrackerSkeleton from "../components/TrackerSkeleton";
 import { ProblemData, State, Fav, Notes } from "./types";
+import { useTopicContent } from "../../lib/hooks/useTopicContent";
 import { dbmsTheme } from "../components/constants/themes";
 import TrackerHeader from "../components/TrackerHeader";
 
 // ── DBMS DATA ── (same as your original)
-const DATA: ProblemData[] = [
+export const FALLBACK_DATA: ProblemData[] = [
   {
     month: "Foundations",
     theme: "DBMS BASICS & ARCHITECTURE",
@@ -30,27 +31,21 @@ const DATA: ProblemData[] = [
           { name: "DDL, DML, DCL, TCL Commands", links: [{ l: "GFG", u: "https://www.geeksforgeeks.org/sql-ddl-dql-dml-dcl-tcl-commands/", t: "gfg" }], tags: ["sql"] },
         ],
       },
-      {
-        label: "ER Model",
-        problems: [
-          { name: "Entity, Attribute, Relationship", links: [{ l: "GFG", u: "https://www.geeksforgeeks.org/introduction-of-er-model/", t: "gfg" }], tags: ["concept"] },
-          { name: "Strong vs Weak Entity", links: [{ l: "GFG", u: "https://www.geeksforgeeks.org/difference-between-strong-and-weak-entity/", t: "gfg" }], tags: ["concept"] },
-          { name: "Cardinality (1:1, 1:N, M:N)", links: [{ l: "GFG", u: "https://www.geeksforgeeks.org/mapping-constraints-in-er-model/", t: "gfg" }], tags: ["concept"] },
-          { name: "ER Diagram to Relational Schema", links: [{ l: "GFG", u: "https://www.geeksforgeeks.org/converting-er-diagram-to-relational-model/", t: "gfg" }], tags: ["concept"] },
-        ],
-      },
     ],
   },
-  // ... paste the remaining months/topics/problems here ...
-  // (Normalization, Transactions, Indexing, etc.)
 ];
 
 const TRACKER_KEY = "dbms";
 
 export default function DBMSTrackerPage() {
-  const { state, setState, favs, setFavs, notes, setNotes, globalNote, setGlobalNote, markState, toggleFavMark, syncNotes, loading } = useTrackerData<State, Fav, Notes>(TRACKER_KEY);
+  const { topicData, loading: contentLoading } = useTopicContent("dbms");
+  const DATA: ProblemData[] = (topicData as ProblemData[]) || FALLBACK_DATA;
+
+  const { state, setState, favs, setFavs, notes, setNotes, globalNote, setGlobalNote, markState, toggleFavMark, syncNotes, loading: trackerLoading } = useTrackerData<State, Fav, Notes>(TRACKER_KEY);
   const [currentTab, setCurrentTab] = useState<"all" | "fav">("all");
   const [openNotes, setOpenNotes] = useState<Record<string, boolean>>({});
+
+  const loading = contentLoading || trackerLoading;
 
   const keyGen = (m: number, t: number, p: number) => `${m}_${t}_${p}`;
 
@@ -80,7 +75,7 @@ export default function DBMSTrackerPage() {
   const calculateStats = () => {
     let total = 0, solved = 0, review = 0, favCount = 0;
 
-    DATA.forEach((month, mi) =>
+    DATA?.forEach((month, mi) =>
       month.topics.forEach((topic, ti) =>
         topic.problems.forEach((_, pi) => {
           total++;
@@ -152,7 +147,7 @@ export default function DBMSTrackerPage() {
         )}
 
         {currentTab === "all" &&
-          DATA.map((month, mi) => (
+          DATA?.map((month, mi) => (
             <MonthSection
               key={mi}
               theme={dbmsTheme}

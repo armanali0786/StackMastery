@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { FiSearch, FiFilter, FiTrendingUp } from "react-icons/fi";
 import PrepGuideCard from "../components/PrepGuideCard";
 import { staticGuides } from "./staticData";
+import { fetchWithAuth } from "../../lib/api";
 
 interface PrepGuide {
   _id: string;
@@ -31,15 +32,25 @@ export default function PrepGuidePage() {
   }, [searchQuery]);
 
   useEffect(() => {
-    filterStaticGuides();
+    fetchGuides();
   }, [debouncedSearch, activeTab, difficultyFilter]);
 
-  const filterStaticGuides = () => {
+  const fetchGuides = async () => {
     setIsLoading(true);
+    try {
+      // Fetching from the backend, falling back to static guides if DB is empty
+      const res = await fetchWithAuth('/api/prep-guides');
+      let data: PrepGuide[] = [];
+      if (res.ok) {
+        const json = await res.json();
+        data = json.guides || [];
+      }
 
-    // Simulate network delay for UI smoothness
-    setTimeout(() => {
-      let filtered = [...staticGuides] as unknown as PrepGuide[];
+      if (data.length === 0) {
+        data = [...staticGuides] as unknown as PrepGuide[];
+      }
+
+      let filtered: PrepGuide[] = data;
 
       if (activeTab === "trending") {
         filtered = filtered.sort((a, b) => b.bookmarksCount - a.bookmarksCount).slice(0, 5);
@@ -57,8 +68,12 @@ export default function PrepGuidePage() {
       }
 
       setGuides(filtered);
+    } catch (e) {
+      console.error(e);
+      setGuides([...staticGuides] as unknown as PrepGuide[]);
+    } finally {
       setIsLoading(false);
-    }, 300);
+    }
   };
 
   const tabs = [

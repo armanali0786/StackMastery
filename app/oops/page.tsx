@@ -13,10 +13,11 @@ import MonthSection from "../components/MonthSection";
 import GlobalNotebook from "../components/GlobalNotebook";
 import TrackerSkeleton from "../components/TrackerSkeleton";
 import { ProblemData, State, Fav, Notes } from "./types";
+import { useTopicContent } from "../../lib/hooks/useTopicContent";
 
 
 // ── OOPs DATA ── (pasted from your HTML)
-const DATA: ProblemData[] = [
+export const FALLBACK_DATA: ProblemData[] = [
   {
     month: "Core Pillars",
     theme: "THE 4 PILLARS OF OOP",
@@ -30,49 +31,22 @@ const DATA: ProblemData[] = [
           { name: "Data Hiding vs Abstraction", links: [{ l: "GFG", u: "https://www.geeksforgeeks.org/difference-between-data-hiding-and-abstraction-in-oops/", t: "gfg" }], tags: ["concept"] },
         ],
       },
-      {
-        label: "Abstraction",
-        problems: [
-          { name: "What is Abstraction?", links: [{ l: "GFG", u: "https://www.geeksforgeeks.org/abstraction-in-java-2/", t: "gfg" }], tags: ["concept"] },
-          { name: "Abstract Classes", links: [{ l: "GFG", u: "https://www.geeksforgeeks.org/abstract-classes-in-java/", t: "gfg" }], tags: ["concept"] },
-          { name: "Interfaces vs Abstract Classes", links: [{ l: "GFG", u: "https://www.geeksforgeeks.org/difference-between-abstract-class-and-interface-in-java/", t: "gfg" }], tags: ["concept"] },
-          { name: "Pure Virtual Functions (C++)", links: [{ l: "GFG", u: "https://www.geeksforgeeks.org/pure-virtual-functions-and-abstract-classes/", t: "gfg" }], tags: ["concept"] },
-        ],
-      },
-      {
-        label: "Inheritance",
-        problems: [
-          { name: "What is Inheritance?", links: [{ l: "GFG", u: "https://www.geeksforgeeks.org/inheritance-in-java/", t: "gfg" }], tags: ["concept"] },
-          { name: "Single Inheritance", links: [{ l: "GFG", u: "https://www.geeksforgeeks.org/java-and-multiple-inheritance/", t: "gfg" }], tags: ["concept"] },
-          { name: "Multiple Inheritance & Diamond Problem", links: [{ l: "GFG", u: "https://www.geeksforgeeks.org/multiple-inheritance-in-c/", t: "gfg" }], tags: ["concept"] },
-          { name: "Multilevel Inheritance", links: [{ l: "GFG", u: "https://www.geeksforgeeks.org/multilevel-inheritance-in-java/", t: "gfg" }], tags: ["concept"] },
-          { name: "Hierarchical Inheritance", links: [{ l: "GFG", u: "https://www.geeksforgeeks.org/hierarchical-inheritance-in-java/", t: "gfg" }], tags: ["concept"] },
-          { name: "Method Overriding", links: [{ l: "GFG", u: "https://www.geeksforgeeks.org/overriding-in-java/", t: "gfg" }], tags: ["concept"] },
-          { name: "super / base class keyword", links: [{ l: "GFG", u: "https://www.geeksforgeeks.org/super-keyword/", t: "gfg" }], tags: ["concept"] },
-        ],
-      },
-      {
-        label: "Polymorphism",
-        problems: [
-          { name: "What is Polymorphism?", links: [{ l: "GFG", u: "https://www.geeksforgeeks.org/polymorphism-in-java/", t: "gfg" }], tags: ["concept"] },
-          { name: "Compile-time Polymorphism (Overloading)", links: [{ l: "GFG", u: "https://www.geeksforgeeks.org/method-overloading-in-java/", t: "gfg" }], tags: ["concept"] },
-          { name: "Runtime Polymorphism (Overriding + vtable)", links: [{ l: "GFG", u: "https://www.geeksforgeeks.org/dynamic-method-dispatch-runtime-polymorphism-java/", t: "gfg" }], tags: ["concept"] },
-          { name: "Virtual Functions & vtable (C++)", links: [{ l: "GFG", u: "https://www.geeksforgeeks.org/virtual-function-cpp/", t: "gfg" }], tags: ["concept"] },
-          { name: "Operator Overloading", links: [{ l: "GFG", u: "https://www.geeksforgeeks.org/operator-overloading-c/", t: "gfg" }], tags: ["concept"] },
-        ],
-      },
     ],
   },
-  // ... paste the remaining months here (Class Internals, Advanced OOP, Interview Q&A)
-  // You can copy-paste the rest from your HTML DATA array
+
 ];
 
 const TRACKER_KEY = "oops";
 
 export default function OOPsTrackerPage() {
-  const { state, setState, favs, setFavs, notes, setNotes, globalNote, setGlobalNote, markState, toggleFavMark, syncNotes, loading } = useTrackerData<State, Fav, Notes>(TRACKER_KEY);
+  const { topicData, loading: contentLoading } = useTopicContent("oops");
+  const DATA: ProblemData[] = (topicData as ProblemData[]) || FALLBACK_DATA;
+
+  const { state, setState, favs, setFavs, notes, setNotes, globalNote, setGlobalNote, markState, toggleFavMark, syncNotes, loading: trackerLoading } = useTrackerData<State, Fav, Notes>(TRACKER_KEY);
   const [currentTab, setCurrentTab] = useState<"all" | "fav">("all");
   const [openNotes, setOpenNotes] = useState<Record<string, boolean>>({});
+
+  const loading = contentLoading || trackerLoading;
 
   const keyGen = (m: number, t: number, p: number) => `${m}_${t}_${p}`;
 
@@ -102,7 +76,7 @@ export default function OOPsTrackerPage() {
   const calculateStats = () => {
     let total = 0, solved = 0, review = 0, favCount = 0;
 
-    DATA.forEach((month, mi) =>
+    DATA?.forEach((month, mi) =>
       month.topics.forEach((topic, ti) =>
         topic.problems.forEach((_, pi) => {
           total++;
@@ -185,7 +159,7 @@ export default function OOPsTrackerPage() {
         )}
 
         {currentTab === "all" &&
-          DATA.map((month, mi) => (
+          DATA?.map((month, mi) => (
             <MonthSection
               key={mi}
               theme={oopsTheme}

@@ -20,6 +20,11 @@ export default function NavBar() {
   const [profileOpen, setProfileOpen] = useState(false);
   const pathname = usePathname();
   const { user, logout } = useAuth();
+  
+  if (pathname.startsWith('/admin')) {
+    return null;
+  }
+  
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-[#0a0a0f]/85 backdrop-blur-xl border-b border-slate-800/80 h-[58px] flex items-center px-6 md:px-8">
       <div className="flex items-center justify-between w-full max-w-7xl mx-auto">
@@ -58,6 +63,15 @@ export default function NavBar() {
               </Link>
             );
           })}
+
+          {user?.role === 'admin' && (
+            <Link
+              href="/admin"
+              className="px-3 py-1.5 text-xs font-mono uppercase tracking-wide rounded-md border border-purple-500/30 bg-purple-500/10 text-purple-400 hover:bg-purple-500/20 transition-all mr-2"
+            >
+              Admin Panel
+            </Link>
+          )}
 
           {user ? (
             <div className="relative ml-2">
@@ -130,6 +144,16 @@ export default function NavBar() {
               </Link>
             );
           })}
+
+          {user?.role === 'admin' && (
+            <Link
+              href="/admin"
+              className="py-2 text-sm font-mono text-purple-400 font-bold"
+              onClick={() => setMobileOpen(false)}
+            >
+              ADMIN PANEL
+            </Link>
+          )}
 
           {user ? (
             <>
