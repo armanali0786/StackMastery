@@ -3,62 +3,41 @@
 
 import { useEffect, useState } from "react";
 import { fetchWithAuth } from "../../lib/api";
+import { useTopicContent } from "../../lib/hooks/useTopicContent";
+import { TRACKER_META, countProblems, TrackerMonth } from "../../lib/trackerMeta";
 
-const trackers = [
-  {
-    id: "dsa",
-    name: "DSA",
-    abbr: "DSA",
-    desc: "6-Month · Arrays, DP, Graphs, Trees & more",
-    color: "#00ff88",
-    href: "/dsa",
-    icon: "🧮",
-    total: 75,
-  },
-  {
-    id: "oops",
-    name: "OOPs",
-    abbr: "OOP",
-    desc: "4 Pillars · SOLID · Design Patterns",
-    color: "#a78bfa",
-    href: "/oops",
-    icon: "🧩",
-    total: 44,
-  },
-  {
-    id: "dbms",
-    name: "DBMS",
-    abbr: "DB",
-    desc: "SQL · Normalization · Transactions · NoSQL",
-    color: "#38bdf8",
-    href: "/dbms",
-    icon: "🗄️",
-    total: 44,
-  },
-  {
-    id: "os",
-    name: "Operating Systems",
-    abbr: "OS",
-    desc: "Processes · Scheduling · Memory · File Systems",
-    color: "#fb923c",
-    href: "/os",
-    icon: "💻",
-    total: 41,
-  },
-  {
-    id: "sd",
-    name: "System Design",
-    abbr: "SD",
-    desc: "HLD · LLD · 12 Classic Designs · Scalability",
-    color: "#34d399",
-    href: "/system-design",
-    icon: "🏗️",
-    total: 48,
-  },
-];
+// ── Per-tracker data hook wrapper ──────────────────────────────────────────
+function useAllTopicData() {
+  const dsa  = useTopicContent("dsa");
+  const oops = useTopicContent("oops");
+  const dbms = useTopicContent("dbms");
+  const os   = useTopicContent("os");
+  const sd   = useTopicContent("sd");
+
+  return { dsa, oops, dbms, os, sd };
+}
 
 export default function TrackerCards() {
   const [stats, setStats] = useState<Record<string, { done: number; review: number; fav: number }>>({});
+
+  const topicContents = useAllTopicData();
+
+  // Map tracker id → live topic data (or null while loading)
+  const topicDataMap: Record<string, TrackerMonth[] | null> = {
+    dsa:  topicContents.dsa.topicData  as TrackerMonth[] | null,
+    oops: topicContents.oops.topicData as TrackerMonth[] | null,
+    dbms: topicContents.dbms.topicData as TrackerMonth[] | null,
+    os:   topicContents.os.topicData   as TrackerMonth[] | null,
+    sd:   topicContents.sd.topicData   as TrackerMonth[] | null,
+  };
+
+  const loadingMap: Record<string, boolean> = {
+    dsa:  topicContents.dsa.loading,
+    oops: topicContents.oops.loading,
+    dbms: topicContents.dbms.loading,
+    os:   topicContents.os.loading,
+    sd:   topicContents.sd.loading,
+  };
 
   useEffect(() => {
     const loadData = async () => {
@@ -73,19 +52,19 @@ export default function TrackerCards() {
 
       const newStats: Record<string, { done: number; review: number; fav: number }> = {};
 
-      trackers.forEach((t) => {
+      TRACKER_META.forEach((t) => {
         let S: Record<string, string> = {};
         let FAV: Record<string, boolean> = {};
 
-        const dbTracker = backendTrackers.find(b => b.subject === t.id);
+        const dbTracker = backendTrackers.find((b) => b.subject === t.id);
         if (dbTracker) {
-          S = dbTracker.states || {};
-          FAV = dbTracker.favs || {};
+          S   = dbTracker.states || {};
+          FAV = dbTracker.favs   || {};
         }
 
-        const done = Object.values(S).filter((v) => v === "done").length;
+        const done   = Object.values(S).filter((v) => v === "done").length;
         const review = Object.values(S).filter((v) => v === "review").length;
-        const fav = Object.values(FAV).filter(Boolean).length;
+        const fav    = Object.values(FAV).filter(Boolean).length;
 
         newStats[t.id] = { done, review, fav };
       });
@@ -109,10 +88,15 @@ export default function TrackerCards() {
       </p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {trackers.map((t, i) => {
+        {TRACKER_META.map((t, i) => {
           const s = stats[t.id] || { done: 0, review: 0, fav: 0 };
-          const pct = t.total > 0 ? Math.round((s.done / t.total) * 100) : 0;
-          const remaining = t.total - s.done;
+
+          // Dynamically compute total from live API data, fall back to fallback data count
+          const isLoading = loadingMap[t.id];
+          const liveData  = topicDataMap[t.id];
+          const total     = countProblems(liveData ?? t.fallback as TrackerMonth[]);
+          const pct       = total > 0 ? Math.round((s.done / total) * 100) : 0;
+          const remaining = total - s.done;
 
           return (
             <a
@@ -134,6 +118,7 @@ export default function TrackerCards() {
                 </div>
               </div>
 
+              {/* Progress bar */}
               <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden mb-5">
                 <div
                   className="h-full rounded-full transition-all duration-700"
@@ -141,6 +126,7 @@ export default function TrackerCards() {
                 />
               </div>
 
+              {/* Stats grid */}
               <div className="grid grid-cols-5 gap-4 text-center mb-6">
                 <div>
                   <div className="text-2xl font-black" style={{ color: t.color }}>
@@ -163,14 +149,16 @@ export default function TrackerCards() {
                   </div>
                 </div>
                 <div>
-                  <div className="text-2xl font-black text-slate-400">{remaining}</div>
+                  <div className="text-2xl font-black text-slate-400">
+                    {isLoading ? <span className="text-slate-600 text-lg">…</span> : remaining}
+                  </div>
                   <div className="text-[10px] font-mono uppercase tracking-wider text-slate-500 mt-1">
                     Left
                   </div>
                 </div>
                 <div>
                   <div className="text-2xl font-black" style={{ color: t.color }}>
-                    {pct}%
+                    {isLoading ? <span className="text-slate-600 text-lg">…</span> : `${pct}%`}
                   </div>
                   <div className="text-[10px] font-mono uppercase tracking-wider text-slate-500 mt-1">
                     Complete
@@ -178,14 +166,20 @@ export default function TrackerCards() {
                 </div>
               </div>
 
-              <div
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg font-mono text-xs font-bold"
-                style={{ color: t.color, border: `1px solid ${t.color}60` }}
-              >
-                Open Tracker
-                <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path d="M5 12h14M12 5l7 7-7 7" />
-                </svg>
+              {/* Total badge */}
+              <div className="flex items-center justify-between">
+                <div
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg font-mono text-xs font-bold"
+                  style={{ color: t.color, border: `1px solid ${t.color}60` }}
+                >
+                  Open Tracker
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path d="M5 12h14M12 5l7 7-7 7" />
+                  </svg>
+                </div>
+                <div className="text-[10px] font-mono text-slate-600">
+                  {isLoading ? "loading…" : `${total} total`}
+                </div>
               </div>
             </a>
           );
@@ -193,4 +187,4 @@ export default function TrackerCards() {
       </div>
     </section>
   );
-}   
+}

@@ -3,21 +3,18 @@
 
 import { useEffect, useState } from "react";
 import { fetchWithAuth } from "../../lib/api";
+import { useTopicContent } from "../../lib/hooks/useTopicContent";
+import { TRACKER_META, countProblems, TrackerMonth } from "../../lib/trackerMeta";
 
-type TrackerStats = {
-  done: number;
-  review: number;
-  fav: number;
-  total: number;
-};
-
-const trackers = [
-  { key: "dsa", name: "DSA", color: "#00ff88", total: 75 },
-  { key: "oops", name: "OOPs", color: "#a78bfa", total: 44 },
-  { key: "dbms", name: "DBMS", color: "#38bdf8", total: 44 },
-  { key: "os", name: "OS", color: "#fb923c", total: 41 },
-  { key: "sd", name: "System Design", color: "#34d399", total: 48 },
-];
+// ── Per-tracker topic data ─────────────────────────────────────────────────
+function useAllTopicData() {
+  const dsa  = useTopicContent("dsa");
+  const oops = useTopicContent("oops");
+  const dbms = useTopicContent("dbms");
+  const os   = useTopicContent("os");
+  const sd   = useTopicContent("sd");
+  return { dsa, oops, dbms, os, sd };
+}
 
 export default function GlobalProgress() {
   const [stats, setStats] = useState({
@@ -32,11 +29,22 @@ export default function GlobalProgress() {
     { name: string; pct: number; color: string }[]
   >([]);
 
+  const topicContents = useAllTopicData();
+
+  const topicDataMap: Record<string, TrackerMonth[] | null> = {
+    dsa:  topicContents.dsa.topicData  as TrackerMonth[] | null,
+    oops: topicContents.oops.topicData as TrackerMonth[] | null,
+    dbms: topicContents.dbms.topicData as TrackerMonth[] | null,
+    os:   topicContents.os.topicData   as TrackerMonth[] | null,
+    sd:   topicContents.sd.topicData   as TrackerMonth[] | null,
+  };
+
+  // Re-compute stats whenever tracker user data OR topic content changes
   useEffect(() => {
-    let totalAll = 0;
-    let doneAll = 0;
+    let totalAll  = 0;
+    let doneAll   = 0;
     let reviewAll = 0;
-    let favAll = 0;
+    let favAll    = 0;
 
     const subjProg: { name: string; pct: number; color: string }[] = [];
 
@@ -50,38 +58,48 @@ export default function GlobalProgress() {
         }
       } catch (err) {}
 
-      trackers.forEach((t) => {
-        let S: Record<string, string> = {};
+      TRACKER_META.forEach((t) => {
+        let S: Record<string, string>   = {};
         let FAV: Record<string, boolean> = {};
 
-        const dbTracker = backendTrackers.find(b => b.subject === t.key);
+        const dbTracker = backendTrackers.find((b) => b.subject === t.id);
         if (dbTracker) {
-          S = dbTracker.states || {};
-          FAV = dbTracker.favs || {};
+          S   = dbTracker.states || {};
+          FAV = dbTracker.favs   || {};
         }
 
-        const done = Object.values(S).filter((v) => v === "done").length;
+        const done   = Object.values(S).filter((v) => v === "done").length;
         const review = Object.values(S).filter((v) => v === "review").length;
-        const fav = Object.values(FAV).filter(Boolean).length;
+        const fav    = Object.values(FAV).filter(Boolean).length;
 
-        const pct = t.total > 0 ? Math.round((done / t.total) * 100) : 0;
+        // Dynamic total from live API data or fallback
+        const liveData = topicDataMap[t.id];
+        const total    = countProblems(liveData ?? t.fallback as TrackerMonth[]);
+        const pct      = total > 0 ? Math.round((done / total) * 100) : 0;
 
-        totalAll += t.total;
-        doneAll += done;
+        totalAll  += total;
+        doneAll   += done;
         reviewAll += review;
-        favAll += fav;
+        favAll    += fav;
 
         subjProg.push({ name: t.name, pct, color: t.color });
       });
 
       const pct = totalAll > 0 ? Math.round((doneAll / totalAll) * 100) : 0;
-
       setStats({ totalAll, doneAll, reviewAll, favAll, pct });
       setSubjectProgress(subjProg);
     };
 
     loadData();
-  }, []);
+  // Re-run when topic data finishes loading for any subject
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    topicContents.dsa.topicData,
+    topicContents.oops.topicData,
+    topicContents.dbms.topicData,
+    topicContents.os.topicData,
+    topicContents.sd.topicData,
+  ]);
 
   const remaining = stats.totalAll - stats.doneAll;
 
@@ -139,11 +157,11 @@ export default function GlobalProgress() {
       {/* Stat Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-5">
         {[
-          { label: "Total Topics", value: stats.totalAll, color: "text-white", sub: "across all subjects" },
-          { label: "Completed", value: stats.doneAll, color: "text-emerald-400", sub: "marked as done" },
-          { label: "For Review", value: stats.reviewAll, color: "text-yellow-400", sub: "flagged to revisit" },
-          { label: "Favourites", value: stats.favAll, color: "text-pink-500", sub: "starred topics" },
-          { label: "Remaining", value: remaining, color: "text-slate-400", sub: "topics left" },
+          { label: "Total Topics", value: stats.totalAll, color: "text-white",       sub: "across all subjects" },
+          { label: "Completed",    value: stats.doneAll,  color: "text-emerald-400", sub: "marked as done" },
+          { label: "For Review",   value: stats.reviewAll,color: "text-yellow-400",  sub: "flagged to revisit" },
+          { label: "Favourites",   value: stats.favAll,   color: "text-pink-500",    sub: "starred topics" },
+          { label: "Remaining",    value: remaining,      color: "text-slate-400",   sub: "topics left" },
         ].map((item, i) => (
           <div
             key={item.label}
