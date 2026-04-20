@@ -9,6 +9,7 @@ const PrepGuide = require('./models/PrepGuide');
 const TopicContent = require('./models/TopicContent');
 const Navigation = require('./models/Navigation');
 const CreatorSheet = require('./models/CreatorSheet');
+const Job = require('./models/Job');
 
 const app = express();
 
@@ -262,6 +263,53 @@ app.delete('/api/admin/creator-sheets/:creatorId', protect, admin, async (req, r
   try {
     await CreatorSheet.findOneAndDelete({ creatorId: req.params.creatorId });
     res.json({ message: 'Sheet deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Job Board Routes
+app.get('/api/jobs', async (req, res) => {
+  try {
+    const jobs = await Job.find({ isActive: true }).sort({ createdAt: -1 });
+    res.json({ jobs });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/admin/jobs', protect, admin, async (req, res) => {
+  try {
+    const jobs = await Job.find({}).sort({ createdAt: -1 });
+    res.json({ jobs });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/admin/jobs', protect, admin, async (req, res) => {
+  try {
+    const job = await Job.create(req.body);
+    res.status(201).json({ job });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.put('/api/admin/jobs/:id', protect, admin, async (req, res) => {
+  try {
+    const job = await Job.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!job) return res.status(404).json({ error: 'Job not found' });
+    res.json({ job });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.delete('/api/admin/jobs/:id', protect, admin, async (req, res) => {
+  try {
+    await Job.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Job deleted' });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
