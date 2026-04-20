@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { FiSearch, FiFilter, FiTrendingUp } from "react-icons/fi";
 import PrepGuideCard from "../components/PrepGuideCard";
 import { staticGuides } from "./staticData";
@@ -16,9 +17,19 @@ interface PrepGuide {
 }
 
 export default function PrepGuidePage() {
+  const pathname = usePathname();
+  
+  const getInitialTab = () => {
+    if (pathname.includes("company-wise")) return "company";
+    if (pathname.includes("roles")) return "role";
+    if (pathname.includes("interview-tips")) return "tips";
+    if (pathname.includes("trending")) return "trending";
+    return "all";
+  };
+
   const [guides, setGuides] = useState<PrepGuide[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"all" | "company" | "role" | "tips" | "trending">("all");
+  const [activeTab, setActiveTab] = useState<"all" | "company" | "role" | "tips" | "trending">(getInitialTab());
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [difficultyFilter, setDifficultyFilter] = useState("All");

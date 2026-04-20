@@ -28,6 +28,14 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             Resources
           </div>
           <SidebarLink href="/admin/prep-guides" icon="📚" label="Prep Guides" />
+          <SidebarLink href="/admin/creator-sheets" icon="📋" label="Creator Sheets" />
+          <SidebarLink href="/admin/jobs" icon="💼" label="Job Board" />
+          <SidebarLink href="/admin/roadmaps" icon="🛤️" label="Roadmaps" />
+          
+          <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-4 mt-8">
+            Settings
+          </div>
+          <SidebarLink href="/admin/navigation" icon="⚙️" label="Navigation Config" />
         </nav>
       </aside>
 

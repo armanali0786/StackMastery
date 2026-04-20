@@ -7,6 +7,8 @@ const Tracker = require('./models/Tracker');
 const jwt = require('jsonwebtoken');
 const PrepGuide = require('./models/PrepGuide');
 const TopicContent = require('./models/TopicContent');
+const Navigation = require('./models/Navigation');
+const CreatorSheet = require('./models/CreatorSheet');
 
 const app = express();
 
@@ -157,6 +159,109 @@ app.put('/api/admin/topics/:subject', protect, admin, async (req, res) => {
       { new: true, upsert: true }
     );
     res.json({ topic: updated });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Navigation Routes
+const defaultNavigation = [
+  { label: "Home", href: "/" },
+  { label: "Topics", children: [
+    { label: "DSA", href: "/dsa" },
+    { label: "OOPS", href: "/oops" },
+    { label: "DBMS", href: "/dbms" },
+    { label: "OS", href: "/os" },
+    { label: "System Design", href: "/system-design" }
+  ]},
+  { label: "Prep Guide", children: [
+    { label: "All Guides", href: "/prep-guide" },
+    { label: "Company-wise", href: "/prep-guide/company-wise" },
+    { label: "Interview Tips", href: "/prep-guide/interview-tips" },
+    { label: "Roles", href: "/prep-guide/roles" },
+    { label: "Trending", href: "/prep-guide/trending" }
+  ]},
+  { label: "Creator Sheets", children: [
+    { label: "Striver Sheets", href: "/creator-sheets/striver" },
+    { label: "Love Babbar Sheets", href: "/creator-sheets/love-babbar" },
+    { label: "Padho with Pratyush", href: "/creator-sheets/padho-with-pratyush" },
+    { label: "Coder with Soni", href: "/creator-sheets/coder-with-soni" }
+  ]},
+  { label: "Jobs", children: [
+    { label: "All Jobs", href: "/jobs" },
+    { label: "Role-wise Jobs", href: "/jobs/role-wise" }
+  ]},
+  { label: "Roadmap", children: [
+    { label: "Company Roadmap", href: "/roadmap/company" },
+    { label: "Role-wise Roadmap", href: "/roadmap/role-wise" }
+  ]}
+];
+
+app.get('/api/navigation', async (req, res) => {
+  try {
+    let nav = await Navigation.findOne({ version: "v1" });
+    if (!nav) {
+      nav = await Navigation.create({ version: "v1", items: defaultNavigation });
+    }
+    res.json({ navigation: nav });
+  } catch (error) {
+    // Graceful fallback if create fails (e.g., db not perfectly synced yet)
+    res.json({ navigation: { items: defaultNavigation } });
+  }
+});
+
+app.put('/api/admin/navigation', protect, admin, async (req, res) => {
+  try {
+    const { items } = req.body;
+    let nav = await Navigation.findOneAndUpdate(
+      { version: "v1" },
+      { $set: { items } },
+      { new: true, upsert: true }
+    );
+    res.json({ navigation: nav });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Creator Sheets Routes
+app.get('/api/creator-sheets', async (req, res) => {
+  try {
+    const sheets = await CreatorSheet.find({}).select('-fileData'); // don't send heavy base64 data for list
+    res.json({ sheets });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/creator-sheets/:creatorId', async (req, res) => {
+  try {
+    const sheet = await CreatorSheet.findOne({ creatorId: req.params.creatorId });
+    if (!sheet) return res.status(404).json({ error: 'Sheet not found' });
+    res.json({ sheet });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.put('/api/admin/creator-sheets/:creatorId', protect, admin, async (req, res) => {
+  try {
+    const { name, problems, fileData, fileName, fileType } = req.body;
+    let sheet = await CreatorSheet.findOneAndUpdate(
+      { creatorId: req.params.creatorId },
+      { $set: { name, problems, fileData, fileName, fileType } },
+      { new: true, upsert: true }
+    );
+    res.json({ sheet });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.delete('/api/admin/creator-sheets/:creatorId', protect, admin, async (req, res) => {
+  try {
+    await CreatorSheet.findOneAndDelete({ creatorId: req.params.creatorId });
+    res.json({ message: 'Sheet deleted successfully' });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
